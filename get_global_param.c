@@ -174,10 +174,10 @@ global_param_struct get_global_param(filenames_struct *names)
   global.statemonth    = MISSING;
   global.stateday      = MISSING;
   strcpy(names->statefile,    "MISSING");
-  strcpy(names->soil,         "MISSING");
+  //strcpy(names->soil,         "MISSING");
   strcpy(names->soil_dir,     "MISSING");
-  strcpy(names->veg,          "MISSING");
-  strcpy(names->veglib,       "MISSING");
+  //strcpy(names->veg,          "MISSING");
+  //strcpy(names->veglib,       "MISSING");
   strcpy(names->snowband,     "MISSING");
   strcpy(names->lakeparam,    "MISSING");
   strcpy(names->result_dir,   "MISSING");

@@ -32,7 +32,7 @@ int main(int argc, char **argv)
   /*Declare variables*/
   extern global_param_struct global_param;
   extern veg_lib_struct *veg_lib;
-  int nvars = 7 ;
+  int nvars = 7; //Number of forcing files
   int i,j;
   filenames_struct names;
   filep_struct filep;
@@ -47,33 +47,76 @@ int main(int argc, char **argv)
   //Resampling variables
   double dt_rs;
   double dt_bs = 1; //hours
+  int nrs;//5; Number of resampling intervals
+  int soil_ncells;
   int ipos; //initial position
-  //Provide the forcing file dimensions
   grads_file_struct grads_file;
-  grads_file.res = 1.0;
-  grads_file.nx = 360;
-  grads_file.ny = 180;
-  grads_file.minlat = -89.50;
-  grads_file.minlon = 0.50;
-  grads_file.undef = -999.0;
-  grads_file.nt = 32144;
+
+  //Open the global parameter file
+  char global_filename[MAXSTRING];
+  strcpy(global_filename,argv[1]);
+  forcing_name_struct forcing_name;
+  FILE *global_fp;
+  global_fp=fopen(global_filename,"r");
+  char tmp_s[MAXSTRING];
+  float tmp_f;
+  int tmp_i;
+  char metrics_filename[MAXSTRING],metrics_root[MAXSTRING];
+
+  //Grads file info
+  fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.res = tmp_f;
+  //printf("%s %f\n",tmp_s,grads_file.res);
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.nx = tmp_i;
+  //printf("%s %d\n",tmp_s,grads_file.nx);
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.ny = tmp_i;
+  //printf("%s %d\n",tmp_s,grads_file.ny);
+  fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.minlat = tmp_f;
+  //printf("%s %f\n",tmp_s,grads_file.minlat);
+  fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.minlon = tmp_f;
+  //printf("%s %f\n",tmp_s,grads_file.minlon);
+  fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.undef = tmp_f;
+  //printf("%s %f\n",tmp_s,grads_file.undef);
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.nt = tmp_i;
+  //printf("%s %d\n",tmp_s,grads_file.nt);
+  //Meteorological input
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.tair);
+  //printf("%s %s\n",tmp_s,forcing_name.tair);
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.prec);
+  //printf("%s %s\n",tmp_s,forcing_name.prec);
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.wind);
+  //printf("%s %s\n",tmp_s,forcing_name.wind);
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.shum);
+  //printf("%s %s\n",tmp_s,forcing_name.shum);
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.pres);
+  //printf("%s %s\n",tmp_s,forcing_name.pres);
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.lwdown);
+  //printf("%s %s\n",tmp_s,forcing_name.lwdown);
+  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.swdown);
+  //printf("%s %s\n",tmp_s,forcing_name.swdown);
+  //Land Info
+  fscanf(global_fp,"%s %s",tmp_s,&names.soil);
+  //printf("%s %s\n",tmp_s,names.soil);
+  fscanf(global_fp,"%s %s",tmp_s,&names.veglib);
+  //printf("%s %s\n",tmp_s,names.veglib);
+  fscanf(global_fp,"%s %s",tmp_s,&names.veg);
+  //printf("%s %s\n",tmp_s,names.veg);
+  //Output Metrics
+  fscanf(global_fp,"%s %s",tmp_s,&metrics_root);
+  //printf("%s %s\n",tmp_s,metrics_root);
+  sprintf (metrics_filename,"%s/metrics_output_%d.txt",metrics_root,myid);
+  //Number of cells
+  fscanf(global_fp,"%s %d",tmp_s,&soil_ncells);
+  //Number of resampling intervals
+  fscanf(global_fp,"%s %d",tmp_s,&nrs);
+
   //Forcing variables
   forcing_filep_struct forcing_filep;
-  forcing_name_struct forcing_name;
   forcing_cell_struct *forcing_cell;
   //Assign the forcing names
-  strcpy(forcing_name.tair,"/scratch/02179/chaneyna/1.0deg/3hourly/tas/tas_2000-2010_cell.bin");
-  strcpy(forcing_name.prec,"/scratch/02179/chaneyna/1.0deg/3hourly/prec/prec_2000-2010_cell.bin");
-  strcpy(forcing_name.wind,"/scratch/02179/chaneyna/1.0deg/3hourly/wind/wind_2000-2010_cell.bin");
-  strcpy(forcing_name.shum,"/scratch/02179/chaneyna/1.0deg/3hourly/shum/shum_2000-2010_cell.bin");
-  strcpy(forcing_name.pres,"/scratch/02179/chaneyna/1.0deg/3hourly/pres/pres_2000-2010_cell.bin");
-  strcpy(forcing_name.lwdown,"/scratch/02179/chaneyna/1.0deg/3hourly/dlwrf/dlwrf_2000-2010_cell.bin");
-  strcpy(forcing_name.swdown,"/scratch/02179/chaneyna/1.0deg/3hourly/dswrf/dswrf_2000-2010_cell.bin");
-  //Initialize global structure
-  //strcpy(names.global,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/global_param_4.1.2_MPI");
-  //filep.globalparam = open_file(names.global,"r");
-  //global_param = get_global_param(&names);//, filep.globalparam);
-  //fclose(filep.globalparam);
+  //Close the global parameter file
+  fclose(global_fp);
+
+  //Initialize global structure;
   initialize_global();          
   //return;
   /** Obtain the global information for VIC **/
@@ -82,21 +125,11 @@ int main(int argc, char **argv)
   /** Open up the forcing files **/
   open_forcing_files(&forcing_filep,&forcing_name);
 
-  //MPI_Init(&argc, &argv);
-  //int np,myid;
-  //MPI_Status status;
-  //MPI_Comm_size(MPI_COMM_WORLD,&np);
-  //MPI_Comm_rank(MPI_COMM_WORLD,&myid);
-
   /** Initialize the structures to hold the atmospheric data (before passing to VIC)**/
   int ncells = 1; //The number of cells to read in at once
   allocate_forcing(&forcing_cell,&grads_file,ncells);
 
   //Assign vegetation/soils names
-  //strcpy(names.soil,"/share/home/02179/chaneyna/BLUE_WATERS/TEST/DATA/global_soils_3hourly_calib_smoothed.txt");
-  strcpy(names.soil,"/share/home/02179/chaneyna/BLUE_WATERS/TEST/DATA/global_soils_default.txt");
-  strcpy(names.veglib,"/share/home/02179/chaneyna/BLUE_WATERS/TEST/DATA/veglib.dat");
-  strcpy(names.veg,"/share/home/02179/chaneyna/BLUE_WATERS/TEST/DATA/global_lai.txt");
   global_param.nrecs = grads_file.nt; //HARD CODED
   double *bs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
   double *rs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
@@ -115,17 +148,15 @@ int main(int argc, char **argv)
 
   /** Set up all variables for the iteration through all cells **/
   int icell;
-  int soil_ncells = 15836;
+  //int soil_ncells = 2;//15836;
   MODEL_DONE=FALSE;
   RUN_MODEL=FALSE;
   cell_cnt = 0;
-  int nrs=5;
   FILE *fp_metrics;
   //FILE *fp_output;
   double *rrmse = (double *) malloc(sizeof(double)*nvars);
-  char str[100];
-  sprintf (str,"/share/home/02179/chaneyna/BLUE_WATERS/TEST/DATA/Output/metrics_output_%d.txt", myid);
-  fp_metrics = fopen(str,"w");
+
+  fp_metrics = fopen(metrics_filename,"w");
   /** Iterate for all cells in the soil file **/
   icell = myid;
   int linen = -1;

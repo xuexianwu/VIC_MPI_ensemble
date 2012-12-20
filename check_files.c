@@ -21,7 +21,6 @@ void check_files(filep_struct     *filep,
 {
   extern option_struct  options;
   extern FILE          *open_file(char string[], char type[]);
-
   filep->soilparam   = open_file(fnames->soil, "r");
 #if !OUTPUT_FORCE
   filep->veglib      = open_file(fnames->veglib, "r");
