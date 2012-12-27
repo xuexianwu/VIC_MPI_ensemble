@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   int Nveg_type;
   //Resampling variables
   double dt_rs;
-  double dt_bs = 1; //hours
+  double dt_bs = 3; //hours
   int nrs;//5; Number of resampling intervals
   int soil_ncells;
   int ipos; //initial position
@@ -62,6 +62,10 @@ int main(int argc, char **argv)
   float tmp_f;
   int tmp_i;
   char metrics_filename[MAXSTRING],metrics_root[MAXSTRING];
+  grads_file.year = 2000;
+  grads_file.month = 1;
+  grads_file.day = 1;
+  grads_file.hour = 0;
 
   //Grads file info
   fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.res = tmp_f;
@@ -155,11 +159,13 @@ int main(int argc, char **argv)
   FILE *fp_metrics;
   //FILE *fp_output;
   double *rrmse = (double *) malloc(sizeof(double)*nvars);
+  double rrmse_month[12][nvars];
 
   fp_metrics = fopen(metrics_filename,"w");
   /** Iterate for all cells in the soil file **/
   icell = myid;
   int linen = -1;
+  int current_month;
   while (icell < soil_ncells){
     for (i = 0; i < nvars; i++){
       rrmse[i] = 0.0;
@@ -194,16 +200,24 @@ int main(int argc, char **argv)
         resample(atmos,global_param.nrecs,dt_rs,dt_bs,ipos);
         /** Run the model **/
         vicNl_cell(rs_output,soil_con,veg_con,dmy,atmos);
-        /** Compare the output to the baseline **/
-        Comparision_Statistics(bs_output,rs_output,global_param.nrecs,rrmse);
+        for (current_month = 0; current_month < 12; current_month++){
+          /** Compare the output to the baseline **/
+          Comparision_Statistics(bs_output,rs_output,global_param.nrecs,rrmse,grads_file.year,
+			       grads_file.month,grads_file.day,grads_file.hour,dt_bs,current_month);
+          for (j = 0; j < nvars; j++){
+            rrmse_month[current_month][j] = rrmse[j];
+	  }
+	}
       }
       /** Compute the average rrmse for this sampling frequency **/
-      fprintf(fp_metrics,"%f ",dt_rs);
-      for (j = 0; j < nvars; j++){
-        rrmse[j] = rrmse[j]/(dt_rs/dt_bs);
-        fprintf(fp_metrics,"%f ",rrmse[j]);
+      for (current_month = 0; current_month < 12; current_month++){
+        fprintf(fp_metrics,"%f %d ",dt_rs,current_month+1);
+        for (j = 0; j < nvars; j++){
+          rrmse_month[current_month][j] = rrmse_month[current_month][j]/(dt_rs/dt_bs);
+          fprintf(fp_metrics,"%f ",rrmse_month[current_month][j]);
+        }
+        fprintf(fp_metrics,"\n");
       }
-      fprintf(fp_metrics,"\n");
     }
     //Next cell
     icell = icell + np;

@@ -26,6 +26,10 @@ typedef struct{
   double minlat;
   double minlon;
   int nt;
+  int year;
+  int month;
+  int day;
+  int hour;
 } grads_file_struct;
 
 typedef struct{
