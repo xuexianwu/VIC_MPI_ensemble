@@ -206,6 +206,7 @@ int main(int argc, char **argv)
 			       grads_file.month,grads_file.day,grads_file.hour,dt_bs,current_month);
           for (j = 0; j < nvars; j++){
             rrmse_month[current_month][j] = rrmse[j];
+	    rrmse[j] = 0;
 	  }
 	}
       }

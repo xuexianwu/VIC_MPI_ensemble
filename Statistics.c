@@ -34,11 +34,13 @@ void Comparision_Statistics(double *bs_output,double *rs_output,int n,
     rs_mean[j] = 0.0;
   }
   /** Sum up all the squared errors **/
+  int tcount = 0;
   t = mktime(&gtime_original);
   for (i = 0; i < n; i++){
     t = t + 3600*dt;
     gmtime_r(&t,&gtime);
     if (gtime.tm_mon == current_month){
+      tcount = tcount + 1;
       for (j = 0; j < nvars ; j++){          
         pos = i*nvars + j;
         rmse[j] = rmse[j] + pow(rs_output[pos]-bs_output[pos],2);
@@ -68,9 +70,9 @@ void Comparision_Statistics(double *bs_output,double *rs_output,int n,
   }
   /** Calculate the relative root mean squared error**/
   for (j = 0; j < nvars ; j++){
-    bs_mean[j] = bs_mean[j]/n;
-    rs_mean[j] = rs_mean[j]/n;
-    rmse[j] = sqrt(rmse[j]/n);
+    bs_mean[j] = bs_mean[j]/tcount;
+    rs_mean[j] = rs_mean[j]/tcount;
+    rmse[j] = sqrt(rmse[j]/tcount);
     if (max[j]-min[j] == 0){rrmse[j] = rrmse[j];}
     else{rrmse[j] = rrmse[j] + rmse[j]/(max[j]-min[j]);}
   }
