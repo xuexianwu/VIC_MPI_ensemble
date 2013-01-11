@@ -169,6 +169,9 @@ int main(int argc, char **argv)
   while (icell < soil_ncells){
     for (i = 0; i < nvars; i++){
       rrmse[i] = 0.0;
+      for (current_month = 0; current_month<12; current_month++){
+        rrmse_month[current_month][i] = 0.0;
+      }
     }
     /** Read the soil data **/
     //rewind(filep.soilparam);
@@ -196,6 +199,8 @@ int main(int argc, char **argv)
       dt_rs = (i+1)*dt_bs;
       //printf("Sampling Period %f\n",dt_rs);
       for (ipos = 0; ipos < (int)dt_rs/dt_bs; ipos++){
+       /** Copy the forcing data to the VIC structure **/
+       initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
        // printf("Initial Position: %d\n",ipos);
         resample(atmos,global_param.nrecs,dt_rs,dt_bs,ipos);
         /** Run the model **/
@@ -205,7 +210,7 @@ int main(int argc, char **argv)
           Comparision_Statistics(bs_output,rs_output,global_param.nrecs,rrmse,grads_file.year,
 			       grads_file.month,grads_file.day,grads_file.hour,dt_bs,current_month);
           for (j = 0; j < nvars; j++){
-            rrmse_month[current_month][j] = rrmse[j];
+            rrmse_month[current_month][j] = rrmse_month[current_month][j] + rrmse[j];
 	    rrmse[j] = 0;
 	  }
 	}
@@ -216,6 +221,7 @@ int main(int argc, char **argv)
         for (j = 0; j < nvars; j++){
           rrmse_month[current_month][j] = rrmse_month[current_month][j]/(dt_rs/dt_bs);
           fprintf(fp_metrics,"%f ",rrmse_month[current_month][j]);
+	  rrmse_month[current_month][j] = 0.0;
         }
         fprintf(fp_metrics,"\n");
       }
