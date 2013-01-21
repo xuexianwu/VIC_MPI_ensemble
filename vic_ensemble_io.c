@@ -5,6 +5,7 @@
 #include <vic_ensemble_io.h>
 
 void read_forcing();
+void downscale_data();
 
 void open_forcing_files(forcing_filep_struct *forcing_filep, forcing_name_struct *forcing_name){
   /** Open up the forcing files **/
