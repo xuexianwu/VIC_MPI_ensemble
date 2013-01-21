@@ -145,7 +145,7 @@ global_param_struct get_global_param(filenames_struct *names)
   global.endmonth      = MISSING;
   global.endday        = MISSING;
   global.resolution    = MISSING;
-  global.dt = 3; //hours
+  global.dt = 1; //hours
   global.nrecs = -99999; //Number of time steps
   global.startyear = 2000; //Start year
   global.startmonth = 1;//Start month
@@ -189,8 +189,8 @@ global_param_struct get_global_param(filenames_struct *names)
       *************************************/
       options.Nlayer = 3;
       options.Nnode = 20;//20;
-      global.dt = 3; //hours
-      options.SNOW_STEP = 3;
+      global.dt = 1; //hours
+      options.SNOW_STEP = 1;
       options.FULL_ENERGY=TRUE;      
       options.FROZEN_SOIL=FALSE;
       options.QUICK_FLUX=FALSE;
@@ -216,7 +216,7 @@ global_param_struct get_global_param(filenames_struct *names)
       param_set.FORCE_FORMAT[0] = ASCII;
       param_set.FORCE_ENDIAN[0] = LITTLE;
       param_set.N_TYPES[0] = 7;
-      param_set.FORCE_DT[0] = 3;
+      param_set.FORCE_DT[0] = 1;
       global.forceyear[0] = 2000;
       global.forcemonth[0] = 1;
       global.forceday[0] = 1;

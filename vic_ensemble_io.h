@@ -30,6 +30,13 @@ typedef struct{
   int month;
   int day;
   int hour;
+  int nt_prec;
+  int nt_tair;
+  int nt_wind;
+  int nt_shum;
+  int nt_pres;
+  int nt_lwdown;
+  int nt_swdown;
 } grads_file_struct;
 
 typedef struct{

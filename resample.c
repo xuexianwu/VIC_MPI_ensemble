@@ -13,7 +13,7 @@ void resample(atmos_data_struct *atmos, int n,double dt_rs, double dt_bs,int ipo
   int i,lpos,rpos,ncount;
   int nt = (int)dt_rs/dt_bs; //Number of baseline time steps in a resampled one
   /** Fill up the temporary array **/
-  for (i=0;i<nt;i++){
+  for (i=0;i<n;i++){
     data_rs[i] = *atmos[i].prec;
   }
   /** Resample the precipitation **/
@@ -40,6 +40,13 @@ void resample(atmos_data_struct *atmos, int n,double dt_rs, double dt_bs,int ipo
     }
     //If the rpos is out of bounds quit the do loop
     if (rpos >= n)break;
+  }
+  double sum0,sum1;
+  sum0 = 0.0;
+  sum1 = 0.0;
+  for (i=0;i<n;i++){
+    sum0 = sum0 + data_rs[i];
+    sum1 = sum1 + *atmos[i].prec;
   }
   /** Set the original precipitation to the resampled one **/
   for (i=0;i<n;i++){

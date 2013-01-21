@@ -46,7 +46,7 @@ int main(int argc, char **argv)
   int Nveg_type;
   //Resampling variables
   double dt_rs;
-  double dt_bs = 3; //hours
+  double dt_bs = 1; //hours
   int nrs;//5; Number of resampling intervals
   int soil_ncells;
   int ipos; //initial position
@@ -83,19 +83,20 @@ int main(int argc, char **argv)
   fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.nt = tmp_i;
   //printf("%s %d\n",tmp_s,grads_file.nt);
   //Meteorological input
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.tair);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.tair,&tmp_i); grads_file.nt_tair = tmp_i;
   //printf("%s %s\n",tmp_s,forcing_name.tair);
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.prec);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.prec,&tmp_i); grads_file.nt_prec = tmp_i;
   //printf("%s %s\n",tmp_s,forcing_name.prec);
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.wind);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.wind,&tmp_i); grads_file.nt_wind = tmp_i;
   //printf("%s %s\n",tmp_s,forcing_name.wind);
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.shum);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.shum,&tmp_i); grads_file.nt_shum = tmp_i;
   //printf("%s %s\n",tmp_s,forcing_name.shum);
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.pres);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.pres,&tmp_i); grads_file.nt_pres = tmp_i;
   //printf("%s %s\n",tmp_s,forcing_name.pres);
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.lwdown);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.lwdown,&tmp_i); grads_file.nt_lwdown = tmp_i;
   //printf("%s %s\n",tmp_s,forcing_name.lwdown);
-  fscanf(global_fp,"%s %s",tmp_s,&forcing_name.swdown);
+  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.swdown,&tmp_i); grads_file.nt_swdown = tmp_i;
+  //printf("%d\n",grads_file.nt_swdown);
   //printf("%s %s\n",tmp_s,forcing_name.swdown);
   //Land Info
   fscanf(global_fp,"%s %s",tmp_s,&names.soil);

@@ -39,42 +39,55 @@ void extract_cell(forcing_filep_struct *forcing_filep, grads_file_struct *grads_
 
   /** Iterate through each time step, extracting the desired data **/
   int t;
+  double data_prec[grads_file->nt_prec];
+  double data_pres[grads_file->nt_pres];
+  double data_wind[grads_file->nt_wind];
+  double data_swdown[grads_file->nt_swdown];
+  double data_lwdown[grads_file->nt_lwdown];
+  double data_tair[grads_file->nt_tair];
+  double data_shum[grads_file->nt_shum];
   double data[grads_file->nt];
   /** Extract data for variable **/
-
   /** Precipitation **/
   //printf("Reading in the Precipitation\n");
-  read_forcing(grads_file,forcing_filep->prec,&data,i,j); 
+  read_forcing(grads_file,forcing_filep->prec,&data_prec,i,j,grads_file->nt_prec); 
+  downscale_data(grads_file->nt,grads_file->nt_prec,data_prec,&data,1);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].prec[t] = data[t];}
 
   /** Pressure **/
   //printf("Reading in the Pressure\n");
-  read_forcing(grads_file,forcing_filep->pres,&data,i,j);
+  read_forcing(grads_file,forcing_filep->pres,&data_pres,i,j,grads_file->nt_pres);
+  downscale_data(grads_file->nt,grads_file->nt_pres,data_pres,&data,0);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].pres[t] = data[t];}
 
   /** Wind Speed **/
  // printf("Reading in the Wind Speed\n");
-  read_forcing(grads_file,forcing_filep->wind,&data,i,j);
+  read_forcing(grads_file,forcing_filep->wind,&data_wind,i,j,grads_file->nt_wind);
+  downscale_data(grads_file->nt,grads_file->nt_wind,data_wind,&data,0);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].wind[t] = data[t];}
 
   /** Downward Shortwave Radiation **/
   //printf("Reading in the Shortwave Radiation\n");
-  read_forcing(grads_file,forcing_filep->swdown,&data,i,j); 
+  read_forcing(grads_file,forcing_filep->swdown,&data_swdown,i,j,grads_file->nt_swdown); 
+  downscale_data(grads_file->nt,grads_file->nt_swdown,data_swdown,&data,0);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].swdown[t] = data[t];}
 
   /** Downward Longwave Radiation **/
   //printf("Reading in the Longwave Radiation\n");
-  read_forcing(grads_file,forcing_filep->lwdown,&data,i,j);
+  read_forcing(grads_file,forcing_filep->lwdown,&data_lwdown,i,j,grads_file->nt_lwdown);
+  downscale_data(grads_file->nt,grads_file->nt_lwdown,data_lwdown,&data,0);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].lwdown[t] = data[t];}
 
   /** Air temperature **/
   //printf("Reading in the Air Temperature\n");
-  read_forcing(grads_file,forcing_filep->tair,&data,i,j);
+  read_forcing(grads_file,forcing_filep->tair,&data_tair,i,j,grads_file->nt_tair);
+  downscale_data(grads_file->nt,grads_file->nt_tair,data_tair,&data,0);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].tair[t] = data[t];}
 
   /** Specific Humidity **/
   //printf("Reading in the Specific Humidity\n");
-  read_forcing(grads_file,forcing_filep->shum,&data,i,j);
+  read_forcing(grads_file,forcing_filep->shum,&data_shum,i,j,grads_file->nt_shum);
+  downscale_data(grads_file->nt,grads_file->nt_shum,data_shum,&data,0);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].shum[t] = data[t];}
 
   /** Convert data to vic format **/
@@ -104,14 +117,14 @@ void read_forcing(grads_file_struct *grads_file,FILE *filep,double *data,int i, 
   }
 }
 */
-void read_forcing(grads_file_struct *grads_file,FILE *filep,double *data,int i, int j){
+void read_forcing(grads_file_struct *grads_file,FILE *filep,double *data,int i, int j, int nt){
   unsigned long ipos;
   int t;
   float var;
-  ipos = grads_file->nt*(j-1) + grads_file->nx*grads_file->nt*(i-1);
+  ipos = grads_file->nt*(j-1) + grads_file->nx*nt*(i-1);
   // Seek to the initial position of the variable//
   fseek(filep,sizeof(var)*ipos,SEEK_SET);
-  for (t = 0; t < grads_file->nt; t++){
+  for (t = 0; t < nt; t++){
   //for (t=0; t < 10; t++){
     fread(&var,sizeof(var),1,filep);
     data[t]  = (double)var;
@@ -121,6 +134,24 @@ void read_forcing(grads_file_struct *grads_file,FILE *filep,double *data,int i, 
     //fseek(filep,sizeof(var)*(grads_file->nx*grads_file->ny-1),SEEK_CUR);
   }
 }
+
+/** Downscale in time **/
+void downscale_data(int nt, int nt_orig ,double *data_us, double *data_ds, int flag_average){
+  int t,tsum,torig,dt;
+  dt = nt/nt_orig;
+  tsum = 0;
+  torig = 0;
+  for (t=0;t<nt;t++){
+    if (tsum == dt){tsum = 0;torig = torig + 1;}
+    tsum = tsum + 1;
+    if (flag_average == 0){
+      data_ds[t] = data_us[torig];
+      }
+    else{
+      data_ds[t] = data_us[torig]/(double)dt;
+      }
+  }
+} 
 
 void allocate_forcing(forcing_cell_struct **forcing_cell, grads_file_struct *grads_file, int ncells){
   int i;
