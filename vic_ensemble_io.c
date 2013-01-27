@@ -51,7 +51,9 @@ void extract_cell(forcing_filep_struct *forcing_filep, grads_file_struct *grads_
   /** Extract data for variable **/
   /** Precipitation **/
   //printf("Reading in the Precipitation\n");
+  //printf("%d\n",grads_file->nt_prec); 
   read_forcing(grads_file,forcing_filep->prec,&data_prec,i,j,grads_file->nt_prec); 
+  //for (t = 0; t < grads_file->nt_prec; t++){if(t<100){printf("%d %d %f\n",i,j,data_prec[t]);}}
   downscale_data(grads_file->nt,grads_file->nt_prec,data_prec,&data,1);
   for (t = 0; t < grads_file->nt; t++){forcing_cell[0].prec[t] = data[t];}
 
@@ -119,10 +121,12 @@ void read_forcing(grads_file_struct *grads_file,FILE *filep,double *data,int i, 
 }
 */
 void read_forcing(grads_file_struct *grads_file,FILE *filep,double *data,int i, int j, int nt){
-  unsigned long ipos;
+  unsigned long long ipos;
   int t;
   float var;
-  ipos = grads_file->nt*(j-1) + grads_file->nx*nt*(i-1);
+  ipos = (unsigned long long)grads_file->nx*(unsigned long long)nt*((unsigned long long)i-1);
+  ipos = (unsigned long long)nt*((unsigned long long)j-1) + ipos;
+  //printf("%llu\n",ipos);
   // Seek to the initial position of the variable//
   fseek(filep,sizeof(var)*ipos,SEEK_SET);
   for (t = 0; t < nt; t++){
