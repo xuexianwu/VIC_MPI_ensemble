@@ -5,6 +5,7 @@
 #include <global.h>
 #include <vic_ensemble_io.h>
 #include <mpi.h>
+#include "borg/borg.h"
 
 int vicNl_cell();
 void resample();
@@ -17,6 +18,21 @@ void deallocate_forcing();
 void initialize_atmos_BLUEWATERS(atmos_data_struct *, dmy_struct *,// FILE **,
                         forcing_cell_struct *forcing_cell,
                         soil_con_struct *);
+						
+						
+// Calibration wrapper function to be used with Borg
+// Receives parameters and writes objective values to an array
+void vic_calibration_wrapper(double* vars, double* objs, double* consts);
+
+// Make these variables global so the wrapper function can use them
+// (Will this wreck anything else?)
+soil_con_struct soil_con; 
+veg_con_struct *veg_con;
+atmos_data_struct *atmos; 
+dmy_struct *dmy; 
+double *bs_output;
+double *rs_output;
+forcing_cell_struct *forcing_cell;
 
 /** Main Program **/
 
@@ -36,10 +52,7 @@ int main(int argc, char **argv)
   int i,j;
   filenames_struct names;
   filep_struct filep;
-  soil_con_struct soil_con; 
-  veg_con_struct *veg_con;
-  atmos_data_struct *atmos; 
-  dmy_struct *dmy; 
+  
   char MODEL_DONE;
   char RUN_MODEL;
   int cell_cnt;
@@ -116,7 +129,6 @@ int main(int argc, char **argv)
 
   //Forcing variables
   forcing_filep_struct forcing_filep;
-  forcing_cell_struct *forcing_cell;
   //Assign the forcing names
   //Close the global parameter file
   fclose(global_fp);
@@ -136,8 +148,8 @@ int main(int argc, char **argv)
 
   //Assign vegetation/soils names
   global_param.nrecs = grads_file.nt; //HARD CODED
-  double *bs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
-  double *rs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
+  bs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
+  rs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
 
   //Allocate memory for the atmospheric data
   alloc_atmos(global_param.nrecs, &atmos);
@@ -186,50 +198,55 @@ int main(int argc, char **argv)
     calc_root_fractions(veg_con, &soil_con);
     /** Read in the forcing data for a single cell **/
     extract_cell(&forcing_filep,&grads_file,soil_con.lat,soil_con.lng,forcing_cell);
-    /** Copy the forcing data to the VIC structure **/
-    initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
-    /** Run the VIC-ensemble framework **/
-    /** Run a simulation to get all the global parameters the same THIS NEEDS TO CHANGE **/
-    vicNl_cell(bs_output,soil_con,veg_con,dmy,atmos);
-    //printf("Running the baseline simulation\n");
-    vicNl_cell(bs_output,soil_con,veg_con,dmy,atmos);
-    /** Resample the precipitation and run the new simulations **/
-    fprintf(fp_metrics,"%d %f %f\n",soil_con.gridcel,soil_con.lat,soil_con.lng);
-    for (i = 0; i < nrs; i++){
-      /** Resample the precipitation **/
-      dt_rs = (i+1)*dt_bs;
-      //printf("Sampling Period %f\n",dt_rs);
-      for (ipos = 0; ipos < (int)dt_rs/dt_bs; ipos++){
-       /** Copy the forcing data to the VIC structure **/
-       initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
-       // printf("Initial Position: %d\n",ipos);
-        resample(atmos,global_param.nrecs,dt_rs,dt_bs,ipos);
-        /** Run the model **/
-        vicNl_cell(rs_output,soil_con,veg_con,dmy,atmos);
-        for (current_month = 0; current_month < 12; current_month++){
-          /** Compare the output to the baseline **/
-          Comparision_Statistics(bs_output,rs_output,global_param.nrecs,rrmse,grads_file.year,
-			       grads_file.month,grads_file.day,grads_file.hour,dt_bs,current_month);
-          for (j = 0; j < nvars; j++){
-            rrmse_month[current_month][j] = rrmse_month[current_month][j] + rrmse[j];
-	    rrmse[j] = 0;
-	  }
+	
+	
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Changes for calibration version start here
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// For each cell ... (this is inside the cell loop)
+	// (1) Read in observed values
+	// (2) Initialize optimization algorithm. Define parameters and ranges.
+	// (3) Run optimization algorithm. Keep track of inputs. Print optimal solutions at the end.
+	
+	// ***Here: write bs_output values from file
+	
+	// Initialize optimization problem (variables, objectives, constraints, function pointer)
+	BORG_Problem vic_problem = BORG_Problem_create(4, 1, 0, vic_calibration_wrapper);
+
+	// Set the parameter bounds to search. All parameters are unitless except Dsmax.
+	// Parameter 1: b_infilt (Variable infiltration curve parameter)
+	BORG_Problem_set_bounds(vic_problem, 0, 0.001, 1.0);
+	// Parameter 2: Ds (Fraction of Dsmax where nonlinear baseflow begins)
+	BORG_Problem_set_bounds(vic_problem, 1, 0.001, 1.0);
+	// Parameter 3: Dsmax (Maximum baseflow velocity, mm/d)
+	BORG_Problem.set_bounds(vic_problem, 2, 0.1, 50.0);
+	// Parameter 4: Ws (Fraction of max soil moisture above which nonlinear baseflow occurs)
+	BORG_Problem.set_bounds(vic_problem, 3, 0.2, 1.0);
+
+	// Set objective epsilons
+	for (i = 0; i < 1; i++) {
+		BORG_Problem_set_epsilon(problem, i, 0.01);
 	}
-      }
-      /** Compute the average rrmse for this sampling frequency **/
-      for (current_month = 0; current_month < 12; current_month++){
-        fprintf(fp_metrics,"%f %d ",dt_rs,current_month+1);
-        for (j = 0; j < nvars; j++){
-          rrmse_month[current_month][j] = rrmse_month[current_month][j]/(dt_rs/dt_bs);
-          fprintf(fp_metrics,"%f ",rrmse_month[current_month][j]);
-	  rrmse_month[current_month][j] = 0.0;
-        }
-        fprintf(fp_metrics,"\n");
-      }
-    }
+	
+	// Set random seed
+	BORG_Random_seed(219758);
+
+	// Run the optimization for a certain number of function evaluations
+	BORG_Archive result = BORG_Algorithm_run(vic_problem, 1000);
+	
+	// Print the results and free memory
+	BORG_Archive_print(result, stdout);
+	BORG_Archive_destroy(result);
+	BORG_Problem_destroy(problem);
+	
+    // Remember to close this cell's output file here
+	
     //Next cell
     icell = icell + np;
+  
   }
+  
+  
   fclose(fp_metrics);
   //Free used memory//
   free_atmos(global_param.nrecs, &atmos);
@@ -249,4 +266,76 @@ int main(int argc, char **argv)
   /** Close up MPI section **/
   MPI_Finalize();
   return 0;
+  
+}
+
+
+// Calibration wrapper function to be used with Borg
+// Receives parameters and writes objective values to an array
+void vic_calibration_wrapper(double* vars, double* objs, double* consts) {
+	
+	// Set parameter values in soil struct
+	soil_con.b_infilt = vars[0];
+	soil_con.Ds = vars[1];
+	soil_con.Dsmax = vars[2];
+	soil_con.Ws = vars[3];
+	
+	// Copy the forcing data to the VIC structure
+    initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
+	
+	// Run the model
+	vicNl_cell(rs_output,soil_con,veg_con,dmy,atmos);
+	
+	// Calculate objective values by comparing rs_output to bs_output
+	// Fill out the array objs[] with these values
+	
+	// Which objective functions to use? Paper uses NSE for wetter regions and AbsError for drier regions. Why?
+	// Maybe use these 2 as a multiobjective approach?
+	
+	  
+	  
+	  
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+	// Resampling ... I don't think we need this anymore
+		
+	/* Resample the precipitation and run the new simulations
+    //fprintf(fp_metrics,"%d %f %f\n",soil_con.gridcel,soil_con.lat,soil_con.lng);
+	
+    for (i = 0; i < nrs; i++){
+      // Resample the precipitation
+      dt_rs = (i+1)*dt_bs;
+      //printf("Sampling Period %f\n",dt_rs);
+      for (ipos = 0; ipos < (int)dt_rs/dt_bs; ipos++){
+        // Copy the forcing data to the VIC structure
+        initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
+        // printf("Initial Position: %d\n",ipos);
+        resample(atmos,global_param.nrecs,dt_rs,dt_bs,ipos);
+        // Run the model
+        vicNl_cell(rs_output,soil_con,veg_con,dmy,atmos);
+        for (current_month = 0; current_month < 12; current_month++){
+          // Compare the output to the baseline
+          Comparision_Statistics(bs_output,rs_output,global_param.nrecs,rrmse,grads_file.year,
+								grads_file.month,grads_file.day,grads_file.hour,dt_bs,current_month);
+          for (j = 0; j < nvars; j++){
+            rrmse_month[current_month][j] = rrmse_month[current_month][j] + rrmse[j];
+	        rrmse[j] = 0;
+	      }
+	    }
+      }
+	  
+      // Compute the average rrmse for this sampling frequency
+      for (current_month = 0; current_month < 12; current_month++){
+        fprintf(fp_metrics,"%f %d ",dt_rs,current_month+1);
+		
+        for (j = 0; j < nvars; j++){
+          rrmse_month[current_month][j] = rrmse_month[current_month][j]/(dt_rs/dt_bs);
+          fprintf(fp_metrics,"%f ",rrmse_month[current_month][j]);
+	      rrmse_month[current_month][j] = 0.0;
+        }
+		
+        fprintf(fp_metrics,"\n");
+      }
+	  
+    } */
+	
 }
