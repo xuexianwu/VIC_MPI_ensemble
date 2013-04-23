@@ -234,12 +234,17 @@ int main(int argc, char **argv)
 	// Run the optimization for a certain number of function evaluations
 	BORG_Archive result = BORG_Algorithm_run(vic_problem, 1000);
 	
-	// Print the results and free memory
-	BORG_Archive_print(result, stdout);
+	// Print the optimized parameter sets to a file
+	FILE* fp_calibration_output;
+	char calibration_output_filename[MAXSTRING];
+	sprintf(calibration_output_filename,"calibration_output/cell_%d.set", icell);
+	fopen(metrics_filename, "w");
+	BORG_Archive_print(result, fp_calibration_output);
+	fclose(fp_calibration_output);
+	
+	// Free memory associated with problem definition
 	BORG_Archive_destroy(result);
 	BORG_Problem_destroy(problem);
-	
-    // Remember to close this cell's output file here
 	
     //Next cell
     icell = icell + np;
