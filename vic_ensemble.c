@@ -233,8 +233,11 @@ int main(int argc, char **argv)
         BORG_Problem_set_epsilon(vic_problem, i, 0.01);
     }
     
-    // Set random seed
-    BORG_Random_seed(219758);
+    // Set random seed (optionally, from the command line)
+	if(argc > 1)
+		BORG_Random_seed(atoi(argv[2]));
+	else
+		BORG_Random_seed(340987);
 
     // Run the optimization for a certain number of function evaluations
     BORG_Archive result = BORG_Algorithm_run(vic_problem, 10);
