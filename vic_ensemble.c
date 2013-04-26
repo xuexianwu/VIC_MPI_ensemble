@@ -74,7 +74,7 @@ int main(int argc, char **argv)
   char tmp_s[MAXSTRING];
   float tmp_f;
   int tmp_i;
-  char metrics_filename[MAXSTRING],metrics_root[MAXSTRING];
+  char metrics_root[MAXSTRING];
   grads_file.year = 2000;
   grads_file.month = 1;
   grads_file.day = 1;
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
   //Output Metrics
   fscanf(global_fp,"%s %s",tmp_s,&metrics_root);
   //printf("%s %s\n",tmp_s,metrics_root);
-  sprintf (metrics_filename,"%s/metrics_output_%d.txt",metrics_root,myid);
+  //sprintf (metrics_filename,"%s/metrics_output_%d.txt",metrics_root,myid);
   //Number of cells
   fscanf(global_fp,"%s %d",tmp_s,&soil_ncells);
   //Number of resampling intervals
@@ -169,12 +169,12 @@ int main(int argc, char **argv)
   MODEL_DONE=FALSE;
   RUN_MODEL=FALSE;
   cell_cnt = 0;
-  FILE *fp_metrics;
+  //FILE *fp_metrics;
   //FILE *fp_output;
   double *rrmse = (double *) malloc(sizeof(double)*nvars);
   double rrmse_month[12][nvars];
 
-  fp_metrics = fopen(metrics_filename,"w");
+  //fp_metrics = fopen(metrics_filename,"w");
   /** Iterate for all cells in the soil file **/
   icell = myid;
   int linen = -1;
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
   }
   
   
-  fclose(fp_metrics);
+  //fclose(fp_metrics);
   //Free used memory//
   free_atmos(global_param.nrecs, &atmos);
   free_dmy(&dmy);
