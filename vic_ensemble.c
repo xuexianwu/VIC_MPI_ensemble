@@ -294,7 +294,7 @@ void vic_calibration_wrapper(double* vars, double* objs, double* consts) {
     soil_con.Ws = vars[3];
     
     // Run the model
-    // vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
+    vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
     
     // Calculate objective values by comparing simulated_data to observed_data
     // Fill out the array objs[] with these values
