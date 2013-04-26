@@ -50,8 +50,8 @@
 SHELL = /bin/bash
 
 # Set CC = your compiler here
-#CC = gcc
-CC = mpicc
+CC = cc
+#CC = mpicc
 
 # Uncomment for normal optimized code flags (fastest run option)
 #CFLAGS  = -I. -O3 -Wall -Wno-unused
