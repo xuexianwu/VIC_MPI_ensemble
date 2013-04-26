@@ -30,8 +30,8 @@ soil_con_struct soil_con;
 veg_con_struct *veg_con;
 atmos_data_struct *atmos; 
 dmy_struct *dmy; 
-double *bs_output;
-double *rs_output;
+double *observed_data;
+double *simulated_data;
 forcing_cell_struct *forcing_cell;
 
 /** Main Program **/
@@ -148,8 +148,8 @@ int main(int argc, char **argv)
 
   //Assign vegetation/soils names
   global_param.nrecs = grads_file.nt; //HARD CODED
-  bs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
-  rs_output = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
+  observed_data = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
+  simulated_data = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
 
   //Allocate memory for the atmospheric data
   alloc_atmos(global_param.nrecs, &atmos);
@@ -213,7 +213,7 @@ int main(int argc, char **argv)
     // (2) Initialize optimization algorithm. Define parameters and ranges.
     // (3) Run optimization algorithm. Keep track of inputs. Print optimal solutions at the end.
     
-    // ***Here: write bs_output values from file
+    // ***Here: write observed_data values from file
     
     // Initialize optimization problem (variables, objectives, constraints, function pointer)
     BORG_Problem vic_problem = BORG_Problem_create(4, 1, 0, vic_calibration_wrapper);
@@ -242,7 +242,7 @@ int main(int argc, char **argv)
     // Print the optimized parameter sets to a file
     FILE* fp_calibration_output;
     char calibration_output_filename[MAXSTRING];
-    sprintf(calibration_output_filename,"calibration_output/cell_%d.set", icell);
+    sprintf(calibration_output_filename,"%s/cell_%d.set", metrics_root, icell);
     fopen(metrics_filename, "w");
     BORG_Archive_print(result, fp_calibration_output);
     fclose(fp_calibration_output);
@@ -291,58 +291,12 @@ void vic_calibration_wrapper(double* vars, double* objs, double* consts) {
     soil_con.Ws = vars[3];
     
     // Run the model
-    vicNl_cell(rs_output,soil_con,veg_con,dmy,atmos);
+    vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
     
-    // Calculate objective values by comparing rs_output to bs_output
+    // Calculate objective values by comparing simulated_data to observed_data
     // Fill out the array objs[] with these values
     
-    // Which objective functions to use? Paper uses NSE for wetter regions and AbsError for drier regions. Why?
-    // Maybe use these 2 as a multiobjective approach?
-    
-      
-      
-      
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
-    // Resampling ... I don't think we need this anymore
-        
-    /* Resample the precipitation and run the new simulations
-    //fprintf(fp_metrics,"%d %f %f\n",soil_con.gridcel,soil_con.lat,soil_con.lng);
-    
-    for (i = 0; i < nrs; i++){
-      // Resample the precipitation
-      dt_rs = (i+1)*dt_bs;
-      //printf("Sampling Period %f\n",dt_rs);
-      for (ipos = 0; ipos < (int)dt_rs/dt_bs; ipos++){
-        // Copy the forcing data to the VIC structure
-        initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
-        // printf("Initial Position: %d\n",ipos);
-        resample(atmos,global_param.nrecs,dt_rs,dt_bs,ipos);
-        // Run the model
-        vicNl_cell(rs_output,soil_con,veg_con,dmy,atmos);
-        for (current_month = 0; current_month < 12; current_month++){
-          // Compare the output to the baseline
-          Comparision_Statistics(bs_output,rs_output,global_param.nrecs,rrmse,grads_file.year,
-                                grads_file.month,grads_file.day,grads_file.hour,dt_bs,current_month);
-          for (j = 0; j < nvars; j++){
-            rrmse_month[current_month][j] = rrmse_month[current_month][j] + rrmse[j];
-            rrmse[j] = 0;
-          }
-        }
-      }
-      
-      // Compute the average rrmse for this sampling frequency
-      for (current_month = 0; current_month < 12; current_month++){
-        fprintf(fp_metrics,"%f %d ",dt_rs,current_month+1);
-        
-        for (j = 0; j < nvars; j++){
-          rrmse_month[current_month][j] = rrmse_month[current_month][j]/(dt_rs/dt_bs);
-          fprintf(fp_metrics,"%f ",rrmse_month[current_month][j]);
-          rrmse_month[current_month][j] = 0.0;
-        }
-        
-        fprintf(fp_metrics,"\n");
-      }
-      
-    } */
+    // For now, make up an objective function
+    objs[0] = vars[0]*vars[1] + vars[2]*vars[3];
     
 }
