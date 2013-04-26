@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 		BORG_Random_seed(340987);
 
     // Run the optimization for a certain number of function evaluations
-    BORG_Archive result = BORG_Algorithm_run(vic_problem, 1);
+    BORG_Archive result = BORG_Algorithm_run(vic_problem, 10);
 	
     // Print the optimized parameter sets to a file
     FILE* fp_calibration_output;
