@@ -55,10 +55,10 @@ CC = cc
 
 # Uncomment for normal optimized code flags (fastest run option)
 #CFLAGS  = -I. -O3 -Wall -Wno-unused
-LIBRARY = -lm
+LIBRARY = -lm -lborg
 
 # Uncomment to include debugging information
-CFLAGS  = -I. -g #-Wall -Wno-unused
+CFLAGS  = -I. -I./borg -g #-Wall -Wno-unused
 #LIBRARY = -lm
 
 # Uncomment to include execution profiling information
