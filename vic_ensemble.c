@@ -217,6 +217,7 @@ int main(int argc, char **argv)
     
     // Initialize optimization problem (variables, objectives, constraints, function pointer)
     BORG_Problem vic_problem = BORG_Problem_create(4, 1, 0, vic_calibration_wrapper);
+	printf("finished creating problem...");
 
     // Set the parameter bounds to search. All parameters are unitless except Dsmax.
     // Parameter 1: b_infilt (Variable infiltration curve parameter)
@@ -228,20 +229,28 @@ int main(int argc, char **argv)
     // Parameter 4: Ws (Fraction of max soil moisture above which nonlinear baseflow occurs)
     BORG_Problem_set_bounds(vic_problem, 3, 0.2, 1.0);
 
+	printf("finished setting bounds...");
+	
     // Set objective epsilons
     for (i = 0; i < 1; i++) {
         BORG_Problem_set_epsilon(vic_problem, i, 0.01);
     }
+	
+	printf("finished setting epsilon...");
     
     // Set random seed (optionally, from the command line)
 	if(argc > 1)
 		BORG_Random_seed(atoi(argv[2]));
 	else
 		BORG_Random_seed(340987);
+		
+	printf("finished setting seed");
 
     // Run the optimization for a certain number of function evaluations
     BORG_Archive result = BORG_Algorithm_run(vic_problem, 10);
     
+	printf("finished running optimization...");
+	
     // Print the optimized parameter sets to a file
     FILE* fp_calibration_output;
     char calibration_output_filename[MAXSTRING];
