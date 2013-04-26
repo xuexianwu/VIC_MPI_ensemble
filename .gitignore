@@ -2,4 +2,4 @@
 .dll
 .lib
 .so
-borg/*
+borg/
