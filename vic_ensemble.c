@@ -224,13 +224,13 @@ int main(int argc, char **argv)
     // Parameter 2: Ds (Fraction of Dsmax where nonlinear baseflow begins)
     BORG_Problem_set_bounds(vic_problem, 1, 0.001, 1.0);
     // Parameter 3: Dsmax (Maximum baseflow velocity, mm/d)
-    BORG_Problem.set_bounds(vic_problem, 2, 0.1, 50.0);
+    BORG_Problem_set_bounds(vic_problem, 2, 0.1, 50.0);
     // Parameter 4: Ws (Fraction of max soil moisture above which nonlinear baseflow occurs)
-    BORG_Problem.set_bounds(vic_problem, 3, 0.2, 1.0);
+    BORG_Problem_set_bounds(vic_problem, 3, 0.2, 1.0);
 
     // Set objective epsilons
     for (i = 0; i < 1; i++) {
-        BORG_Problem_set_epsilon(problem, i, 0.01);
+        BORG_Problem_set_epsilon(vic_problem, i, 0.01);
     }
     
     // Set random seed
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
     
     // Free memory associated with problem definition
     BORG_Archive_destroy(result);
-    BORG_Problem_destroy(problem);
+    BORG_Problem_destroy(vic_problem);
     
     //Next cell
     icell = icell + np;
