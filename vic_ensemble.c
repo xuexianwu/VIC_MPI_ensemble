@@ -6,6 +6,7 @@
 #include <vic_ensemble_io.h>
 #include <mpi.h>
 #include "borg/borg.h"
+#include <time.h>
 
 int vicNl_cell();
 void resample();
@@ -18,6 +19,7 @@ void deallocate_forcing();
 void initialize_atmos_BLUEWATERS(atmos_data_struct *, dmy_struct *,// FILE **,
                         forcing_cell_struct *forcing_cell,
                         soil_con_struct *);
+float obs[12];
                         
                         
 // Calibration wrapper function to be used with Borg
@@ -142,6 +144,10 @@ int main(int argc, char **argv)
   /** Open up the forcing files **/
   open_forcing_files(&forcing_filep,&forcing_name);
 
+  /** Open up the observations files **/
+  FILE *obs_fp;
+  obs_fp = fopen("/scratch/sciteam/nchaney/data/PSU_AERO_PU/1.0deg/OBS/GRDC_Monthly_Climatology.txt","r");
+
   /** Initialize the structures to hold the atmospheric data (before passing to VIC)**/
   int ncells = 1; //The number of cells to read in at once
   allocate_forcing(&forcing_cell,&grads_file,ncells);
@@ -188,7 +194,7 @@ int main(int argc, char **argv)
         rrmse_month[current_month][i] = 0.0;
       }
     }
-	
+
     /** Read the soil data **/
     //rewind(filep.soilparam);
     while (linen < icell){
@@ -213,8 +219,37 @@ int main(int argc, char **argv)
     // (2) Initialize optimization algorithm. Define parameters and ranges.
     // (3) Run optimization algorithm. Keep track of inputs. Print optimal solutions at the end.
     
-    // ***Here: write observed_data values from file
-    
+    // Extract monthly runoff observations from file
+    rewind(obs_fp);
+    fgetc(obs_fp);
+    fgetc(obs_fp);//Read the first line
+    float lat,lon,tmp,linem; 
+    int flag_cell = 1;
+    linem = 0;
+    while (linem <  14548){
+      fscanf(obs_fp,"%f,%f",&lat,&lon);
+      fgetc(obs_fp);
+      if (lat == soil_con.lat && lon == soil_con.lng){
+        //printf("%f %f\n",lat,lon);
+        for (int i = 0; i < 12; i++){
+         fscanf(obs_fp,"%f",&tmp);
+         fgetc(obs_fp);
+         obs[i] = tmp;
+         //printf("%f \n",obs[i]);
+         }
+        //printf("\n");
+        flag_cell = 0;
+        break;
+      }
+      linem = linem + 1;
+    } 
+    if (flag_cell == 1){
+      //We don't have runoff observations for this cell so there is no need to calibrate...
+      printf("There are no observations for this cell\n");
+      icell = icell + np;
+      continue; 
+      }
+
     // Initialize optimization problem (variables, objectives, constraints, function pointer)
     BORG_Problem vic_problem = BORG_Problem_create(4, 1, 0, vic_calibration_wrapper);
 
@@ -234,13 +269,13 @@ int main(int argc, char **argv)
     }
     
     // Set random seed (optionally, from the command line)
-	if(argc > 1)
-		BORG_Random_seed(atoi(argv[2]));
-	else
+	//if(argc > 1)
+	//	BORG_Random_seed(atoi(argv[2]));
+	//else
 		BORG_Random_seed(340987);
 
     // Run the optimization for a certain number of function evaluations
-    BORG_Archive result = BORG_Algorithm_run(vic_problem, 10);
+    BORG_Archive result = BORG_Algorithm_run(vic_problem,1);
 	
     // Print the optimized parameter sets to a file
     FILE* fp_calibration_output;
@@ -287,6 +322,32 @@ int main(int argc, char **argv)
 // Receives parameters and writes objective values to an array
 void vic_calibration_wrapper(double* vars, double* objs, double* consts) {
     
+    float sim[12],count[12],qbase,qsurf;
+    time_t t;
+    int n = global_param.nrecs;
+    int dt = 1;
+    int nvars = 7;
+    struct tm gtime;
+    struct tm gtime_original;
+    gtime.tm_sec = 0;
+    gtime.tm_min = 0;
+    gtime.tm_hour = 0;
+    gtime.tm_mday = 0;
+    gtime.tm_mon = 0;
+    gtime.tm_year = 2000 - 1900;
+    gtime_original = gtime;
+    // Initialize all the simulated data
+    for (int i = 0; i < n*nvars; i++){
+      simulated_data[i] = 0.0;
+    }
+    // Initialize all the monthly count and simulated data (REASONS WHY I HATE C)
+    for (int i = 0; i< 12; i++){
+      count[i] = 0.0;
+      sim[i] = 0.0;
+    }
+    //if(m==1)output_array[out_pos] = out_data[OUT_RUNOFF].data[0];//Surface Runoff [mm]      
+    //if(m==2)output_array[out_pos] = out_data[OUT_BASEFLOW].data[0];//Baseflow [mm]
+
     // Set parameter values in soil struct
     soil_con.b_infilt = vars[0];
     soil_con.Ds = vars[1];
@@ -295,8 +356,26 @@ void vic_calibration_wrapper(double* vars, double* objs, double* consts) {
     
     // Run the model
     vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
+
+    // Find the monthly averages of simulated runoff (baseflow + surface runoff)
+
+    int tcount = 0;
+    int mon = 0;
+    t = mktime(&gtime_original);
+    for (int i = 0; i < n; i++){
+      t = t + 3600*dt;
+      gmtime_r(&t,&gtime);
+      qsurf = simulated_data[i*nvars+1];
+      qbase = simulated_data[i*nvars+2];
+      sim[gtime.tm_mon] = sim[gtime.tm_mon] + qsurf + qbase;
+      if (mon != gtime.tm_mon){
+        count[gtime.tm_mon] = count[gtime.tm_mon] + 1;
+        mon = gtime.tm_mon;
+      }
+    }
     
     // Calculate objective values by comparing simulated_data to observed_data
+    // You just need to compare the arrays obs and sim (12 values per array)
     // Fill out the array objs[] with these values
     
     // For now, make up an objective function
