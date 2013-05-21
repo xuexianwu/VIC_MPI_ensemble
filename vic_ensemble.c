@@ -270,6 +270,9 @@ int main(int argc, char **argv)
 		fscanf(hcube_fp,"%f,%f,%f,%f", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3]);
 		fgetc(hcube_fp); // skip EOL character
 		
+		// test values
+		printf("%f %f %f %f", hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
+		
 		// Run the model with these parameters. record objective(s).
 		vic_calibration_wrapper(hcube_params, hcube_obj);
 		
