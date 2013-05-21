@@ -263,20 +263,31 @@ int main(int argc, char **argv)
 	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f_cell_%d.txt", metrics_root, lat, lon, icell);
 	hcube_output_fp = fopen(hcube_output_filename, "w");
 	
-	double *hcube_obj = (double *) malloc(sizeof(double)*1); // 1 objective
+	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
+	
+	// test: print the observations to the output file first row
+	for(i = 0; i < 12; i++) {
+		fprintf(hcube_output_fp, "%f", obs[i]);
+		if(i < 11) fprintf(hcube_output_fp, " ");
+		else fprintf(hcube_output_fp, "\n");
+	}
 	
 	for(i = 0; i < num_hypercube; i++) {
 	
 		fscanf(hcube_fp,"%lf %lf %lf %lf", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3]);
 		fgetc(hcube_fp); // skip EOL character
 		
-		// test values
-		printf("%f %f %f %f\n", hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
+		// print run details to stdout to keep track of what's happening
+		printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
 		
 		// Run the model with these parameters. record objective(s).
 		vic_calibration_wrapper(hcube_params, hcube_obj);
 		
-		fprintf(hcube_output_fp, "%f\n", hcube_obj[0]);
+		for(j = 0; j < 12; j++) {
+		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
+		  if(i < 11) fprintf(hcube_output_fp, " ");
+		  else fprintf(hcube_output_fp, "\n");
+		}
 		
 	}
 	
@@ -289,7 +300,6 @@ int main(int argc, char **argv)
     icell = icell + np;
   
   }
-  
   
   //fclose(fp_metrics);
   //Free used memory//
@@ -374,7 +384,9 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     // You just need to compare the arrays obs and sim (12 values per array)
     // Fill out the array objs[] with these values
     
-    // For now, make up an objective function
-    objs[0] = vars[0]*vars[1] + vars[2]*vars[3];
+    // For now, save each sim monthly value as an objective
+	for(int i = 0; i < 12; i++) {
+		objs[i] = sim[i];
+	}
     
 }
