@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 	
 	for(i = 0; i < num_hypercube; i++) {
 	
-		fscanf(hcube_fp,"%f,%f,%f,%f", &hcube_params[0], &hcube_params[1], hcube_params[2], hcube_params[3]);
+		fscanf(hcube_fp,"%f,%f,%f,%f", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3]);
 		fgetc(hcube_fp); // skip EOL character
 		
 		// Run the model with these parameters. record objective(s).
@@ -302,6 +302,8 @@ int main(int argc, char **argv)
   deallocate_forcing(&forcing_cell,&grads_file,ncells);
   /** Free memory **/
   free(rrmse);
+  free(hcube_params);
+  free(hcube_obj);
   /** Close up MPI section **/
   MPI_Finalize();
   return 0;
