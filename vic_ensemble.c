@@ -279,6 +279,8 @@ int main(int argc, char **argv)
 	
     fclose(hcube_fp);
 	fclose(hcube_output_fp);
+	free(hcube_params);
+    free(hcube_obj);
     
     //Next cell
     icell = icell + np;
@@ -302,8 +304,6 @@ int main(int argc, char **argv)
   deallocate_forcing(&forcing_cell,&grads_file,ncells);
   /** Free memory **/
   free(rrmse);
-  free(hcube_params);
-  free(hcube_obj);
   /** Close up MPI section **/
   MPI_Finalize();
   return 0;
