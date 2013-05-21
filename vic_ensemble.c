@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 	
 	for(i = 0; i < num_hypercube; i++) {
 	
-		fscanf(hcube_fp,"%f,%f,%f,%f", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3]);
+		fscanf(hcube_fp,"%f %f %f %f", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3]);
 		fgetc(hcube_fp); // skip EOL character
 		
 		// test values
