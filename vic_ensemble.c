@@ -24,7 +24,7 @@ float obs[12];
                         
 // Calibration wrapper function to be used with Borg
 // Receives parameters and writes objective values to an array
-void vic_calibration_wrapper(double* vars, double* objs, double* consts);
+void vic_calibration_wrapper(double* vars, double* objs);
 
 // Make these variables global so the wrapper function can use them
 // (Will this wreck anything else?)
@@ -211,14 +211,6 @@ int main(int argc, char **argv)
 	// Copy the forcing data to the VIC structure
     initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
     
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Changes for calibration version start here
-    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // For each cell ... (this is inside the cell loop)
-    // (1) Read in observed values
-    // (2) Initialize optimization algorithm. Define parameters and ranges.
-    // (3) Run optimization algorithm. Keep track of inputs. Print optimal solutions at the end.
-    
     // Extract monthly runoff observations from file
     rewind(obs_fp);
     fgetc(obs_fp);
@@ -248,46 +240,45 @@ int main(int argc, char **argv)
       printf("There are no observations for this cell\n");
       icell = icell + np;
       continue; 
-      }
-
-    // Initialize optimization problem (variables, objectives, constraints, function pointer)
-    BORG_Problem vic_problem = BORG_Problem_create(4, 1, 0, vic_calibration_wrapper);
-
-    // Set the parameter bounds to search. All parameters are unitless except Dsmax.
-    // Parameter 1: b_infilt (Variable infiltration curve parameter)
-    BORG_Problem_set_bounds(vic_problem, 0, 0.001, 1.0);
-    // Parameter 2: Ds (Fraction of Dsmax where nonlinear baseflow begins)
-    BORG_Problem_set_bounds(vic_problem, 1, 0.001, 1.0);
-    // Parameter 3: Dsmax (Maximum baseflow velocity, mm/d)
-    BORG_Problem_set_bounds(vic_problem, 2, 0.1, 50.0);
-    // Parameter 4: Ws (Fraction of max soil moisture above which nonlinear baseflow occurs)
-    BORG_Problem_set_bounds(vic_problem, 3, 0.2, 1.0);
-
-    // Set objective epsilons
-    for (i = 0; i < 1; i++) {
-        BORG_Problem_set_epsilon(vic_problem, i, 0.01);
     }
-    
-    // Set random seed (optionally, from the command line)
-	//if(argc > 1)
-	//	BORG_Random_seed(atoi(argv[2]));
-	//else
-		BORG_Random_seed(340987);
-
-    // Run the optimization for a certain number of function evaluations
-    BORG_Archive result = BORG_Algorithm_run(vic_problem,1);
 	
-    // Print the optimized parameter sets to a file
-    FILE* fp_calibration_output;
-    char calibration_output_filename[MAXSTRING];
-    sprintf(calibration_output_filename,"%s/cell_%d.set", metrics_root, icell);
-    fp_calibration_output = fopen(calibration_output_filename, "w");
-    BORG_Archive_print(result, fp_calibration_output);
-    fclose(fp_calibration_output);
-    
-    // Free memory associated with problem definition
-    BORG_Archive_destroy(result);
-    BORG_Problem_destroy(vic_problem);
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Changes for hypercube version start here
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // For each cell ... (this is inside the cell loop)
+    // (1) Read in parameter values from hypercube file
+    // (2) Evaluate the model for this parameter set
+	
+	// Pass in size of hypercube sample on the command line
+	int num_hypercube = atoi(argv[2]);
+	
+	// Open the file of hypercube samples for reading into an array
+	FILE *hcube_fp;
+    hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_100.txt", "r");
+	double *hcube_params = (double *) malloc(sizeof(double)*4); // 4 parameters
+	
+	// Open the output file for writing objective(s) after each evaluation
+	FILE *hcube_output_fp;
+	char hcube_output_filename[MAXSTRING];
+	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f_cell_%d.txt", metrics_root, lat, lon, icell);
+	hcube_output_fp = fopen(hcube_output_filename, "w");
+	
+	double *hcube_obj = (double *) malloc(sizeof(double)*1); // 1 objective
+	
+	for(i = 0; i < num_hypercube; i++) {
+	
+		fscanf(hcube_fp,"%f,%f,%f,%f", &hcube_params[0], &hcube_params[1], hcube_params[2], hcube_params[3]);
+		fgetc(hcube_fp); // skip EOL character
+		
+		// Run the model with these parameters. record objective(s).
+		vic_calibration_wrapper(hcube_params, hcube_obj);
+		
+		fprintf(hcube_output_fp, "%f\n", hcube_obj[0]);
+		
+	}
+	
+    fclose(hcube_fp);
+	fclose(hcube_output_fp);
     
     //Next cell
     icell = icell + np;
@@ -320,7 +311,7 @@ int main(int argc, char **argv)
 
 // Calibration wrapper function to be used with Borg
 // Receives parameters and writes objective values to an array
-void vic_calibration_wrapper(double* vars, double* objs, double* consts) {
+void vic_calibration_wrapper(double* vars, double* objs) {
     
     float sim[12],count[12],qbase,qsurf;
     time_t t;
