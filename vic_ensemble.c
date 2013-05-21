@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 		
 		for(j = 0; j < 12; j++) {
 		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
-		  if(i < 11) fprintf(hcube_output_fp, " ");
+		  if(j < 11) fprintf(hcube_output_fp, " ");
 		  else fprintf(hcube_output_fp, "\n");
 		}
 		
