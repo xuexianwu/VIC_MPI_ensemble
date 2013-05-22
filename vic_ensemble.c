@@ -213,28 +213,29 @@ int main(int argc, char **argv)
     
     // Extract monthly runoff observations from file
     rewind(obs_fp);
-    fgetc(obs_fp);
-    fgetc(obs_fp);//Read the first line
+    //fgetc(obs_fp);
+    //fgetc(obs_fp);//Read the first line
     float lat,lon,tmp,linem; 
     int flag_cell = 1;
     linem = 0;
+	
     while (linem <  14548){
       fscanf(obs_fp,"%f,%f",&lat,&lon);
       fgetc(obs_fp);
 	  
 	  printf("%f %f\n",lat,lon);
 	  
+      for (int i = 0; i < 12; i++) {
+        fscanf(obs_fp,"%f",&tmp);
+        fgetc(obs_fp);
+        obs[i] = tmp;
+      }
+		
       if (lat == soil_con.lat && lon == soil_con.lng){
-        for (int i = 0; i < 12; i++){
-         fscanf(obs_fp,"%f",&tmp);
-         fgetc(obs_fp);
-         obs[i] = tmp;
-         //printf("%f \n",obs[i]);
-         }
-        //printf("\n");
         flag_cell = 0;
         break;
       }
+	  
       linem = linem + 1;
     } 
     if (flag_cell == 1){
