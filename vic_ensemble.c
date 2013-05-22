@@ -258,9 +258,10 @@ int main(int argc, char **argv)
 	double *hcube_params = (double *) malloc(sizeof(double)*4); // 4 parameters
 	
 	// Open the output file for writing objective(s) after each evaluation
+	// The filename will contain 6 digits after the decimals by default
 	FILE *hcube_output_fp;
 	char hcube_output_filename[MAXSTRING];
-	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f_cell_%d.txt", metrics_root, lat, lon, icell);
+	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f.txt", metrics_root, lat, lon);
 	hcube_output_fp = fopen(hcube_output_filename, "w");
 	
 	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
