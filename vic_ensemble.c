@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 
   //fp_metrics = fopen(metrics_filename,"w");
   /** Iterate for all cells in the soil file **/
-  icell = myid+7498;
+  icell = myid+7257;
   int linen = -1;
   int current_month;
   
