@@ -298,7 +298,7 @@ int main(int argc, char **argv)
     free(hcube_obj);
     
     //Next cell
-    icell = icell + np;
+    icell = icell + 999999;//np;
   
   }
   
