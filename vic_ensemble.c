@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 
   //fp_metrics = fopen(metrics_filename,"w");
   /** Iterate for all cells in the soil file **/
-  icell = myid;
+  icell = myid+8161;
   int linen = -1;
   int current_month;
   
@@ -356,10 +356,10 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     //if(m==2)output_array[out_pos] = out_data[OUT_BASEFLOW].data[0];//Baseflow [mm]
 
     // Set parameter values in soil struct
-    soil_con.b_infilt = vars[0];
-    soil_con.Ds = vars[1];
-    soil_con.Dsmax = vars[2];
-    soil_con.Ws = vars[3];
+    //soil_con.b_infilt = vars[0];
+    //soil_con.Ds = vars[1];
+    //soil_con.Dsmax = vars[2];
+    //soil_con.Ws = vars[3];
     
     // Run the model
     vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
