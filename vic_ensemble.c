@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 
   /** Set up all variables for the iteration through all cells **/
   int icell;
-  //int soil_ncells = 2;//15836;
+  int soil_ncells = 4;//15836;
   MODEL_DONE=FALSE;
   RUN_MODEL=FALSE;
   cell_cnt = 0;
