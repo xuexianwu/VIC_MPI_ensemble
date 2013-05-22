@@ -219,7 +219,7 @@ int main(int argc, char **argv)
     int flag_cell = 1;
     linem = 0;
     while (linem <  14548){
-      fscanf(obs_fp,"%0.2f,%0.2f",&lat,&lon);
+      fscanf(obs_fp,"%f,%f",&lat,&lon);
       fgetc(obs_fp);
 	  
 	  printf("%f %f\n",lat,lon);
