@@ -223,14 +223,16 @@ int main(int argc, char **argv)
       fscanf(obs_fp,"%f,%f",&lat,&lon);
       fgetc(obs_fp);
 	  
-	  printf("%f %f\n",lat,lon);
+	  //printf("%f %f\n",lat,lon);
 	  
+	  // Read the 12 monthly values
       for (int i = 0; i < 12; i++) {
         fscanf(obs_fp,"%f",&tmp);
         fgetc(obs_fp);
         obs[i] = tmp;
       }
-		
+      
+	  // If this was the right row, break. Otherwise keep looking.
       if (lat == soil_con.lat && lon == soil_con.lng){
         flag_cell = 0;
         break;
