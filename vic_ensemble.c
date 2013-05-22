@@ -221,8 +221,10 @@ int main(int argc, char **argv)
     while (linem <  14548){
       fscanf(obs_fp,"%f,%f",&lat,&lon);
       fgetc(obs_fp);
+	  
+	  printf("%f %f\n",lat,lon);
+	  
       if (lat == soil_con.lat && lon == soil_con.lng){
-        //printf("%f %f\n",lat,lon);
         for (int i = 0; i < 12; i++){
          fscanf(obs_fp,"%f",&tmp);
          fgetc(obs_fp);
