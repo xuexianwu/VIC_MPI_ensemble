@@ -272,11 +272,11 @@ int main(int argc, char **argv)
 	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
 	
 	// test: print the observations to the output file first row
-	for(i = 0; i < 12; i++) {
+	/*for(i = 0; i < 12; i++) {
 		fprintf(hcube_output_fp, "%f", obs[i]);
 		if(i < 11) fprintf(hcube_output_fp, " ");
 		else fprintf(hcube_output_fp, "\n");
-	}
+	}*/
 	
 	for(i = 0; i < num_hypercube; i++) {
 	
