@@ -295,6 +295,9 @@ int main(int argc, char **argv)
 		  else fprintf(hcube_output_fp, "\n");
 		}
 		
+		// buffer flush after each evaluation
+		fflush(hcube_output_fp);
+		
 	}
 	
     fclose(hcube_fp);
