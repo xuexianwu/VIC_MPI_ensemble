@@ -284,7 +284,7 @@ int main(int argc, char **argv)
 		fgetc(hcube_fp); // skip EOL character
 		
 		// print run details to stdout to keep track of what's happening
-		printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
+		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
 		
 		// Run the model with these parameters. record objective(s).
 		vic_calibration_wrapper(hcube_params, hcube_obj);
@@ -361,10 +361,10 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     //if(m==2)output_array[out_pos] = out_data[OUT_BASEFLOW].data[0];//Baseflow [mm]
 
     // Set parameter values in soil struct
-    //soil_con.b_infilt = vars[0];
-    //soil_con.Ds = vars[1];
-    //soil_con.Dsmax = vars[2];
-    //soil_con.Ws = vars[3];
+    soil_con.b_infilt = vars[0];
+    soil_con.Ds = vars[1];
+    soil_con.Dsmax = vars[2];
+    soil_con.Ws = vars[3];
     
     // Run the model
     vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
