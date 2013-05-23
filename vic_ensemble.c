@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 
   /** Set up all variables for the iteration through all cells **/
   int icell;
-  soil_ncells = 15386;//15836; TEMPORARY FIX
+  //soil_ncells = 2//15836; TEMPORARY FIX
   MODEL_DONE=FALSE;
   RUN_MODEL=FALSE;
   cell_cnt = 0;
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 
   //fp_metrics = fopen(metrics_filename,"w");
   /** Iterate for all cells in the soil file **/
-  icell = myid+7498;
+  icell = myid;
   int linen = -1;
   int current_month;
   
@@ -303,7 +303,7 @@ int main(int argc, char **argv)
     free(hcube_obj);
     
     //Next cell
-    icell = icell + 999999;//np;
+    icell = icell + np;
   
   }
   
