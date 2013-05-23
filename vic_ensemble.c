@@ -390,9 +390,9 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     // You just need to compare the arrays obs and sim (12 values per array)
     // Fill out the array objs[] with these values
     
-    // For now, save each sim monthly value as an objective
+    // For now, save each sim monthly value (average) as an objective
 	for(int i = 0; i < 12; i++) {
-		objs[i] = sim[i];
+		objs[i] = sim[i]/count[i];
 	}
     
 }
