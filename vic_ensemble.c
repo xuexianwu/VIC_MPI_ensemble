@@ -340,6 +340,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     float sim[12],count[12],qbase,qsurf;
     time_t t;
     int n = global_param.nrecs;
+	int i;
     int dt = 1;
     int nvars = 7;
     struct tm gtime;
