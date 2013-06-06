@@ -226,7 +226,7 @@ int main(int argc, char **argv)
 	  //printf("%f %f\n",lat,lon);
 	  
 	  // Read the 12 monthly values
-      for (int i = 0; i < 12; i++) {
+      for (i = 0; i < 12; i++) {
         fscanf(obs_fp,"%f",&tmp);
         fgetc(obs_fp);
         obs[i] = tmp;
@@ -352,11 +352,11 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     gtime.tm_year = 2000 - 1900;
     gtime_original = gtime;
     // Initialize all the simulated data
-    for (int i = 0; i < n*nvars; i++){
+    for (i = 0; i < n*nvars; i++){
       simulated_data[i] = 0.0;
     }
     // Initialize all the monthly count and simulated data (REASONS WHY I HATE C)
-    for (int i = 0; i< 12; i++){
+    for (i = 0; i< 12; i++){
       count[i] = 0.0;
       sim[i] = 0.0;
     }
@@ -377,7 +377,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     int tcount = 0;
     int mon = 0;
     t = mktime(&gtime_original);
-    for (int i = 0; i < n; i++){
+    for (i = 0; i < n; i++){
       t = t + 3600*dt;
       gmtime_r(&t,&gtime);
       qsurf = simulated_data[i*nvars+1];
@@ -394,7 +394,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     // Fill out the array objs[] with these values
     
     // For now, save each sim monthly value (average) as an objective
-	for(int i = 0; i < 12; i++) {
+	for(i = 0; i < 12; i++) {
 		objs[i] = sim[i]/count[i];
 	}
     
