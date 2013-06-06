@@ -58,7 +58,7 @@ CC = cc
 LIBRARY = -L./borg -lm -lborg
 
 # Uncomment to include debugging information
-CFLAGS  = -I. -p -g -O0 #-Wall -Wno-unused
+CFLAGS  = -I. -03 #-Wall -Wno-unused
 #LIBRARY = -lm
 
 # Uncomment to include execution profiling information
