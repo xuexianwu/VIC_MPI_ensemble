@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 		
 		// print run details to stdout to keep track of what's happening
 		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
-		printf("Cell %d, LHS Run %d\n", icell, i);
+		
 		// Run the model with these parameters. record objective(s).
 		vic_calibration_wrapper(hcube_params, hcube_obj);
 		
@@ -299,8 +299,6 @@ int main(int argc, char **argv)
 		fflush(hcube_output_fp);
 		
 	}
-	
-	printf("Cell %d Finished\n", icell);
 	
     fclose(hcube_fp);
 	fclose(hcube_output_fp);
