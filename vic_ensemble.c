@@ -259,8 +259,8 @@ int main(int argc, char **argv)
 	
 	// Open the file of hypercube samples for reading into an array
 	FILE *hcube_fp;
-    hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_100.txt", "r");
-	double *hcube_params = (double *) malloc(sizeof(double)*4); // 4 parameters
+    hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_6param_100.txt", "r");
+	double *hcube_params = (double *) malloc(sizeof(double)*6); // 6 parameters
 	
 	// Open the output file for writing objective(s) after each evaluation
 	// The filename will contain 6 digits after the decimals by default
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 	
 	for(i = 0; i < num_hypercube; i++) {
 	
-		fscanf(hcube_fp,"%lf %lf %lf %lf", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3]);
+		fscanf(hcube_fp,"%lf %lf %lf %lf %lf %lf", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3], &hcube_params[4], &hcube_params[5]);
 		fgetc(hcube_fp); // skip EOL character
 		
 		// print run details to stdout to keep track of what's happening
@@ -369,6 +369,8 @@ void vic_calibration_wrapper(double* vars, double* objs) {
     soil_con.Ds = vars[1];
     soil_con.Dsmax = vars[2];
     soil_con.Ws = vars[3];
+	soil_con.depth[1] = vars[4];
+	soil_con.depth[2] = vars[5];
     
     // Run the model
     vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
