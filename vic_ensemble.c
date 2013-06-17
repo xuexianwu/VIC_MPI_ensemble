@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 	
 	// Open the file of hypercube samples for reading into an array
 	FILE *hcube_fp;
-    hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_6param_100.txt", "r");
+    hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_6param_1000.txt", "r");
 	double *hcube_params = (double *) malloc(sizeof(double)*6); // 6 parameters
 	
 	// Open the output file for writing objective(s) after each evaluation
