@@ -337,66 +337,66 @@ int main(int argc, char **argv)
 // Receives parameters and writes objective values to an array
 void vic_calibration_wrapper(double* vars, double* objs) {
     
-    float sim[12],count[12],qbase,qsurf;
-    time_t t;
-    int n = global_param.nrecs;
+  float sim[12],count[12],qbase,qsurf;
+  time_t t;
+  int n = global_param.nrecs;
 	int i;
-    int dt = 1;
-    int nvars = 7;
-    struct tm gtime;
-    struct tm gtime_original;
-    gtime.tm_sec = 0;
-    gtime.tm_min = 0;
-    gtime.tm_hour = 0;
-    gtime.tm_mday = 0;
-    gtime.tm_mon = 0;
-    gtime.tm_year = 2000 - 1900;
-    gtime_original = gtime;
-    // Initialize all the simulated data
-    for (i = 0; i < n*nvars; i++){
-      simulated_data[i] = 0.0;
-    }
-    // Initialize all the monthly count and simulated data (REASONS WHY I HATE C)
-    for (i = 0; i< 12; i++){
-      count[i] = 0.0;
-      sim[i] = 0.0;
-    }
-    //if(m==1)output_array[out_pos] = out_data[OUT_RUNOFF].data[0];//Surface Runoff [mm]      
-    //if(m==2)output_array[out_pos] = out_data[OUT_BASEFLOW].data[0];//Baseflow [mm]
+  int dt = 1;
+  int nvars = 7;
+  struct tm gtime;
+  struct tm gtime_original;
+  gtime.tm_sec = 0;
+  gtime.tm_min = 0;
+  gtime.tm_hour = 0;
+  gtime.tm_mday = 0;
+  gtime.tm_mon = 0;
+  gtime.tm_year = 2000 - 1900;
+  gtime_original = gtime;
+  // Initialize all the simulated data
+  for (i = 0; i < n*nvars; i++){
+    simulated_data[i] = 0.0;
+  }
+  // Initialize all the monthly count and simulated data (REASONS WHY I HATE C)
+  for (i = 0; i< 12; i++){
+    count[i] = 0.0;
+    sim[i] = 0.0;
+  }
+  //if(m==1)output_array[out_pos] = out_data[OUT_RUNOFF].data[0];//Surface Runoff [mm]      
+  //if(m==2)output_array[out_pos] = out_data[OUT_BASEFLOW].data[0];//Baseflow [mm]
 
-    // Set parameter values in soil struct
-    soil_con.b_infilt = vars[0];
-    soil_con.Ds = vars[1];
-    soil_con.Dsmax = vars[2];
-    soil_con.Ws = vars[3];
+  // Set parameter values in soil struct
+  // Note: to run default parameters, comment these out.
+/*  soil_con.b_infilt = vars[0];
+  soil_con.Ds = vars[1];
+  soil_con.Dsmax = vars[2];
+  soil_con.Ws = vars[3];
 	soil_con.depth[1] = vars[4];
 	soil_con.depth[2] = vars[5];
-    
-    // Run the model
-    vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
+*/    
+  // Run the model
+  vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
 
-    // Find the monthly averages of simulated runoff (baseflow + surface runoff)
-
-    int tcount = 0;
-    int mon = 0;
-    t = mktime(&gtime_original);
-    for (i = 0; i < n; i++){
-      t = t + 3600*dt;
-      gmtime_r(&t,&gtime);
-      qsurf = simulated_data[i*nvars+1];
-      qbase = simulated_data[i*nvars+2];
-      sim[gtime.tm_mon] = sim[gtime.tm_mon] + qsurf + qbase;
-      if (mon != gtime.tm_mon){
-        count[gtime.tm_mon] = count[gtime.tm_mon] + 1;
-        mon = gtime.tm_mon;
-      }
+  // Find the monthly averages of simulated runoff (baseflow + surface runoff)
+  int tcount = 0;
+  int mon = 0;
+  t = mktime(&gtime_original);
+  for (i = 0; i < n; i++){
+    t = t + 3600*dt;
+    gmtime_r(&t,&gtime);
+    qsurf = simulated_data[i*nvars+1];
+    qbase = simulated_data[i*nvars+2];
+    sim[gtime.tm_mon] = sim[gtime.tm_mon] + qsurf + qbase;
+    if (mon != gtime.tm_mon){
+      count[gtime.tm_mon] = count[gtime.tm_mon] + 1;
+      mon = gtime.tm_mon;
     }
-    
-    // Calculate objective values by comparing simulated_data to observed_data
-    // You just need to compare the arrays obs and sim (12 values per array)
-    // Fill out the array objs[] with these values
-    
-    // For now, save each sim monthly value (average) as an objective
+  }
+  
+  // Calculate objective values by comparing simulated_data to observed_data
+  // You just need to compare the arrays obs and sim (12 values per array)
+  // Fill out the array objs[] with these values
+  
+  // For now, save each sim monthly value (average) as an objective
 	for(i = 0; i < 12; i++) {
 		objs[i] = sim[i]/count[i];
 	}
