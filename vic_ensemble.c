@@ -145,9 +145,9 @@ int main(int argc, char **argv)
   open_forcing_files(&forcing_filep,&forcing_name);
 
   /** Open up the observations files **/
-  FILE *obs_fp;
+/*  FILE *obs_fp;
   obs_fp = fopen("/scratch/sciteam/nchaney/data/PSU_AERO_PU/1.0deg/OBS/GRDC_Monthly_Climatology.txt","r");
-
+*/
   /** Initialize the structures to hold the atmospheric data (before passing to VIC)**/
   int ncells = 1; //The number of cells to read in at once
   allocate_forcing(&forcing_cell,&grads_file,ncells);
@@ -208,18 +208,18 @@ int main(int argc, char **argv)
     /** Read in the forcing data for a single cell **/
     extract_cell(&forcing_filep,&grads_file,soil_con.lat,soil_con.lng,forcing_cell);
     
-	// Copy the forcing data to the VIC structure
+	  // Copy the forcing data to the VIC structure
     initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
     
     // Extract monthly runoff observations from file
-    rewind(obs_fp);
+    //rewind(obs_fp);
     //fgetc(obs_fp);
     //fgetc(obs_fp);//Read the first line
     float lat,lon,tmp,linem; 
     int flag_cell = 1;
     linem = 0;
 	
-    while (linem <  14548){
+    /*while (linem <  14548){
       fscanf(obs_fp,"%f,%f",&lat,&lon);
       fgetc(obs_fp);
 	  
@@ -245,64 +245,64 @@ int main(int argc, char **argv)
       printf("There are no observations for this cell\n");
       icell = icell + np;
       continue; 
-    }
+    }*/
 	
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Changes for hypercube version start here
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // For each cell ... (this is inside the cell loop)
     // (1) Read in parameter values from hypercube file
     // (2) Evaluate the model for this parameter set
 	
-	// Pass in size of hypercube sample on the command line
-	int num_hypercube = atoi(argv[2]);
-	
-	// Open the file of hypercube samples for reading into an array
-	FILE *hcube_fp;
+  	// Pass in size of hypercube sample on the command line
+  	int num_hypercube = atoi(argv[2]);
+  	
+  	// Open the file of hypercube samples for reading into an array
+  	FILE *hcube_fp;
     hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_6param_1000.txt", "r");
-	double *hcube_params = (double *) malloc(sizeof(double)*6); // 6 parameters
+  	double *hcube_params = (double *) malloc(sizeof(double)*6); // 6 parameters
+  	
+  	// Open the output file for writing objective(s) after each evaluation
+  	// The filename will contain 6 digits after the decimals by default
+  	FILE *hcube_output_fp;
+  	char hcube_output_filename[MAXSTRING];
+  	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f.txt", metrics_root, lat, lon);
+  	hcube_output_fp = fopen(hcube_output_filename, "w");
+  	
+  	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
+  	
+  	// test: print the observations to the output file first row
+  	/*for(i = 0; i < 12; i++) {
+  		fprintf(hcube_output_fp, "%f", obs[i]);
+  		if(i < 11) fprintf(hcube_output_fp, " ");
+  		else fprintf(hcube_output_fp, "\n");
+  	}*/
 	
-	// Open the output file for writing objective(s) after each evaluation
-	// The filename will contain 6 digits after the decimals by default
-	FILE *hcube_output_fp;
-	char hcube_output_filename[MAXSTRING];
-	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f.txt", metrics_root, lat, lon);
-	hcube_output_fp = fopen(hcube_output_filename, "w");
-	
-	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
-	
-	// test: print the observations to the output file first row
-	/*for(i = 0; i < 12; i++) {
-		fprintf(hcube_output_fp, "%f", obs[i]);
-		if(i < 11) fprintf(hcube_output_fp, " ");
-		else fprintf(hcube_output_fp, "\n");
-	}*/
-	
-	for(i = 0; i < num_hypercube; i++) {
-	
-		fscanf(hcube_fp,"%lf %lf %lf %lf %lf %lf", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3], &hcube_params[4], &hcube_params[5]);
-		fgetc(hcube_fp); // skip EOL character
-		
-		// print run details to stdout to keep track of what's happening
-		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
-		
-		// Run the model with these parameters. record objective(s).
-		vic_calibration_wrapper(hcube_params, hcube_obj);
-		
-		for(j = 0; j < 12; j++) {
-		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
-		  if(j < 11) fprintf(hcube_output_fp, " ");
-		  else fprintf(hcube_output_fp, "\n");
-		}
-		
-		// buffer flush after each evaluation
-		fflush(hcube_output_fp);
-		
-	}
+  	for(i = 0; i < num_hypercube; i++) {
+  	
+  		fscanf(hcube_fp,"%lf %lf %lf %lf %lf %lf", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3], &hcube_params[4], &hcube_params[5]);
+  		fgetc(hcube_fp); // skip EOL character
+  		
+  		// print run details to stdout to keep track of what's happening
+  		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
+  		
+  		// Run the model with these parameters. record objective(s).
+  		vic_calibration_wrapper(hcube_params, hcube_obj);
+  		
+  		for(j = 0; j < 12; j++) {
+  		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
+  		  if(j < 11) fprintf(hcube_output_fp, " ");
+  		  else fprintf(hcube_output_fp, "\n");
+  		}
+  		
+  		// buffer flush after each evaluation
+  		fflush(hcube_output_fp);
+  		
+  	}
 	
     fclose(hcube_fp);
-	fclose(hcube_output_fp);
-	free(hcube_params);
+  	fclose(hcube_output_fp);
+  	free(hcube_params);
     free(hcube_obj);
     
     //Next cell
