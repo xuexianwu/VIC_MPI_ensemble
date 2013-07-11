@@ -255,18 +255,22 @@ int main(int argc, char **argv)
     // (2) Evaluate the model for this parameter set
 	
   	// Pass in size of hypercube sample on the command line
+    // and the number of the hypercube file (0-9)
   	int num_hypercube = atoi(argv[2]);
-  	
+  	int filenum = atoi(argv[3]);
+
   	// Open the file of hypercube samples for reading into an array
   	FILE *hcube_fp;
-    hcube_fp = fopen("/u/sciteam/jdh33/projects/VIC/vic_hypercube_6param_1000.txt", "r");
+    char hcube_input_filename[MAXSTRING];
+    sprintf(hcube_input_filename, "/u/sciteam/jdh33/projects/VIC/vic_hypercube_6_1000_%d.txt", filenum);
+    hcube_fp = fopen(hcube_input_filename, "r");
   	double *hcube_params = (double *) malloc(sizeof(double)*6); // 6 parameters
   	
   	// Open the output file for writing objective(s) after each evaluation
   	// The filename will contain 6 digits after the decimals by default
   	FILE *hcube_output_fp;
   	char hcube_output_filename[MAXSTRING];
-  	sprintf(hcube_output_filename, "%s/hcube_lat_%f_long_%f.txt", metrics_root, soil_con.lat, soil_con.lng);
+  	sprintf(hcube_output_filename, "%s/file_%d/hcube_lat_%f_long_%f.txt", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	hcube_output_fp = fopen(hcube_output_filename, "w");
   	
   	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
