@@ -448,14 +448,18 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   soil_con.Ws = vars[3];
   soil_con.depth[1] = vars[4];
   soil_con.depth[2] = vars[5];
-  //Here we are adding the new parameters [vars[6] should be between 0.1 and 10.0]
-  //for (i=0; i<Nveg_type; i++){
+
+  //Here we are adding the new parameters 
+  //[vars[6] should be between 0.1 and 10.0]
+  //for (i = 0; i < Nveg_type; i++){
   // veg_lib[i].rmin = vars[6]*rmin[0];
   //}
-  //This should be between 1.0 and 30.0
-  //soil_con.exp = vars[7];
-  //This is in mm/day RANGES?
-  //soil_con.ksat = vars[8];
+  //for (i = 0; i < 3; i++){
+    //expt - between 1.0 and 30.0
+    //soil_con.expt[i] = vars[7];
+    //ksat - between ? and ? [mm/day]
+    //soil_con.Ksat[MAX_LAYERS] = vars[8];
+    //}
   
     
   // Run the model
