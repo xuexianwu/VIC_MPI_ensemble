@@ -56,6 +56,7 @@ CC = cc
 # Uncomment for normal optimized code flags (fastest run option)
 #CFLAGS  = -I. -O3 -Wall -Wno-unused
 #LIBRARY = -L./borg -lm -lborg
+#LIBRARY = -lnetcdf
 
 # Uncomment to include debugging information
 CFLAGS  = -I. -O3 #-Wall -Wno-unused
