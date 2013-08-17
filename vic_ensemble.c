@@ -456,7 +456,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   //Here we are adding the new parameters 
   //[vars[6] should be between 0.1 and 10.0]
   for (i = 0; i < Nveg_type; i++){
-    veg_lib[i].rmin = vars[6]*rmin[0];
+    veg_lib[i].rmin = vars[6]*rmin[i];
   }
   for (i = 0; i < 3; i++){
     //expt - between 1.0 and 30.0
