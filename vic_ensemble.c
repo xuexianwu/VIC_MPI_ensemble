@@ -451,16 +451,15 @@ void vic_calibration_wrapper(double* vars, double* objs) {
 
   //Here we are adding the new parameters 
   //[vars[6] should be between 0.1 and 10.0]
-  //for (i = 0; i < Nveg_type; i++){
-  // veg_lib[i].rmin = vars[6]*rmin[0];
-  //}
-  //for (i = 0; i < 3; i++){
+  for (i = 0; i < Nveg_type; i++){
+    veg_lib[i].rmin = vars[6]*rmin[0];
+  }
+  for (i = 0; i < 3; i++){
     //expt - between 1.0 and 30.0
-    //soil_con.expt[i] = vars[7];
-    //ksat - between ? and ? [mm/day]
-    //soil_con.Ksat[MAX_LAYERS] = vars[8];
-    //}
-  
+    soil_con.expt[i] = vars[7];
+    //ksat - between 100 and 10,000 [mm/day]
+    soil_con.Ksat[i] = vars[8];
+  }
     
   // Run the model
   vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
