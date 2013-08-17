@@ -8,6 +8,7 @@
 //#include "borg/borg.h"
 #include <time.h>
 #include <netcdf.h>
+#include <math.h>
 
 int vicNl_cell();
 void resample();
@@ -446,9 +447,9 @@ void vic_calibration_wrapper(double* vars, double* objs) {
 
   // Set parameter values in soil struct
   // Note: to run default parameters, comment these out.
-  soil_con.b_infilt = vars[0];
-  soil_con.Ds = vars[1];
-  soil_con.Dsmax = vars[2];
+  soil_con.b_infilt = pow(10,vars[0]);
+  soil_con.Ds = pow(10,vars[1]);
+  soil_con.Dsmax = pow(vars[2]);
   soil_con.Ws = vars[3];
   soil_con.depth[1] = vars[4];
   soil_con.depth[2] = vars[5];
@@ -456,13 +457,13 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   //Here we are adding the new parameters 
   //[vars[6] should be between 0.1 and 10.0]
   for (i = 0; i < Nveg_type; i++){
-    veg_lib[i].rmin = vars[6]*rmin[0];
+    veg_lib[i].rmin = pow(10,vars[6])*rmin[0];
   }
   for (i = 0; i < 3; i++){
     //expt - between 1.0 and 30.0
     soil_con.expt[i] = vars[7];
     //ksat - between 100 and 10,000 [mm/day]
-    soil_con.Ksat[i] = vars[8];
+    soil_con.Ksat[i] = pow(10,vars[8]);
   }
     
   // Run the model
