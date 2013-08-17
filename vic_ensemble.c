@@ -449,7 +449,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   // Note: to run default parameters, comment these out.
   soil_con.b_infilt = pow(10,vars[0]);
   soil_con.Ds = pow(10,vars[1]);
-  soil_con.Dsmax = pow(vars[2]);
+  soil_con.Dsmax = pow(10,vars[2]);
   soil_con.Ws = vars[3];
   soil_con.depth[1] = vars[4];
   soil_con.depth[2] = vars[5];
