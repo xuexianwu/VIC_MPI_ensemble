@@ -332,9 +332,12 @@ int main(int argc, char **argv)
         size_t index[2];
 	
   	for(i = 0; i < num_hypercube; i++) {
-  	
-  		fscanf(hcube_fp,"%lf %lf %lf %lf %lf %lf", &hcube_params[0], &hcube_params[1], &hcube_params[2], &hcube_params[3], &hcube_params[4], &hcube_params[5]);
-  		fgetc(hcube_fp); // skip EOL character
+  	  
+      // Read in 9 parameters from sample file
+      for(p = 0; p < 9; p++) {
+  		  fscanf(hcube_fp,"%lf", &hcube_params[p]);
+  		}
+      fgetc(hcube_fp); // skip EOL character
   		
   		// print run details to stdout to keep track of what's happening
   		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
