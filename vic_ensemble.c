@@ -268,7 +268,7 @@ int main(int argc, char **argv)
   	// Open the file of hypercube samples for reading into an array
   	FILE *hcube_fp;
     char hcube_input_filename[MAXSTRING];
-    sprintf(hcube_input_filename, "/u/sciteam/jdh33/projects/VIC/vic_hypercube_6_1000_%d.txt", filenum);
+    sprintf(hcube_input_filename, "/u/sciteam/jdh33/projects/VIC/vic_hypercube_9_1000_%d.txt", filenum);
     hcube_fp = fopen(hcube_input_filename, "r");
   	double *hcube_params = (double *) malloc(sizeof(double)*6); // 6 parameters
   	
