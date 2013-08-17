@@ -36,6 +36,8 @@ dmy_struct *dmy;
 double *observed_data;
 double *simulated_data;
 forcing_cell_struct *forcing_cell;
+float *rmin;
+int Nveg_type;
 
 /** Main Program **/
 
@@ -52,14 +54,13 @@ int main(int argc, char **argv)
   extern global_param_struct global_param;
   extern veg_lib_struct *veg_lib;
   int nvars = 7; //Number of forcing files
-  int i,j;
+  int i,j,p;
   filenames_struct names;
   filep_struct filep;
   
   char MODEL_DONE;
   char RUN_MODEL;
   int cell_cnt;
-  int Nveg_type;
   //Resampling variables
   double dt_rs;
   double dt_bs = 1; //hours
@@ -171,7 +172,7 @@ int main(int argc, char **argv)
   veg_lib = read_veglib(filep.veglib,&Nveg_type);
   
   /** Copy the rmin **/
-  float rmin[Nveg_type];
+  rmin = (float *) malloc(sizeof(float)*Nveg_type);
   for (i=0;i<Nveg_type;i++){
    rmin[i] = veg_lib[i].rmin;
   }
