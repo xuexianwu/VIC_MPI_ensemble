@@ -331,7 +331,7 @@ int main(int argc, char **argv)
         float sm1[global_param.nrecs];
         float sm2[global_param.nrecs];
         float sm3[global_param.nrecs];
-        size_t index[2];
+        size_t index[2],count[2],start[2];
 	
   	for(i = 0; i < num_hypercube; i++) {
   	  
@@ -362,16 +362,27 @@ int main(int argc, char **argv)
                  sm1[itime] = simulated_data[itime*7+4];
                  sm2[itime] = simulated_data[itime*7+5];
                  sm3[itime] = simulated_data[itime*7+6];
-                 index[0] = i;
-		 index[1] = itime;
-                 status = nc_put_var1_float(ncid,prec_id,index,&prec[itime]);
-                 status = nc_put_var1_float(ncid,evap_id,index,&evap[itime]);
-                 status = nc_put_var1_float(ncid,sm1_id,index,&sm1[itime]);
-                 status = nc_put_var1_float(ncid,sm2_id,index,&sm2[itime]);
-                 status = nc_put_var1_float(ncid,sm3_id,index,&sm3[itime]);
-                 status = nc_put_var1_float(ncid,qbase_id,index,&qbase[itime]);
-                 status = nc_put_var1_float(ncid,qsurf_id,index,&qsurf[itime]);
+                 //index[0] = i;
+		 //index[1] = itime;
+                 //status = nc_put_var1_float(ncid,prec_id,index,&prec[itime]);
+                 //status = nc_put_var1_float(ncid,evap_id,index,&evap[itime]);
+                 //status = nc_put_var1_float(ncid,sm1_id,index,&sm1[itime]);
+                 //status = nc_put_var1_float(ncid,sm2_id,index,&sm2[itime]);
+                 //status = nc_put_var1_float(ncid,sm3_id,index,&sm3[itime]);
+                 //status = nc_put_var1_float(ncid,qbase_id,index,&qbase[itime]);
+                 //status = nc_put_var1_float(ncid,qsurf_id,index,&qsurf[itime]);
                 }
+ 		count[0] = 1;
+                count[1] = global_param.nrecs;
+                start[0] = i;
+                start[1] = 0;
+		status = nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+		status = nc_put_vara_float(ncid,evap_id,start,count,&evap[0]);
+		status = nc_put_vara_float(ncid,sm1_id,start,count,&sm1[0]);
+		status = nc_put_vara_float(ncid,sm2_id,start,count,&sm2[0]);
+		status = nc_put_vara_float(ncid,sm3_id,start,count,&sm3[0]);
+		status = nc_put_vara_float(ncid,qbase_id,start,count,&qbase[0]);
+		status = nc_put_vara_float(ncid,qsurf_id,start,count,&qsurf[0]);
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
@@ -476,6 +487,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   for (i = 0; i < n; i++){
     t = t + 3600*dt;
     gmtime_r(&t,&gtime);
+    if (gtime.tm_year <= 100){continue;}
     qsurf = simulated_data[i*nvars+1];
     qbase = simulated_data[i*nvars+2];
     sim[gtime.tm_mon] = sim[gtime.tm_mon] + qsurf + qbase;
