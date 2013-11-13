@@ -401,6 +401,8 @@ int main(int argc, char **argv)
        // Remove netcdf 4 file
        sprintf(system_call_string,"rm %s",hcube_output_nc4_filename);
        system(system_call_string);
+       sprintf(system_call_string, "chmod 770 %s", hcube_output_nc3_filename);
+       system(system_call_string);
 	
     fclose(hcube_fp);
   	fclose(hcube_output_fp);
