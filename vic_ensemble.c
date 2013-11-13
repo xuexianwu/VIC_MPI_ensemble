@@ -396,7 +396,7 @@ int main(int argc, char **argv)
       
        // Convert from nc4 to nc3 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];
-       sprintf(system_call_string,"nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
+       sprintf(system_call_string,"/opt/cray/netcdf/4.1.3/cray/73/bin/nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
        system(system_call_string);
        // Remove netcdf 4 file
        sprintf(system_call_string,"rm %s",hcube_output_nc4_filename);
