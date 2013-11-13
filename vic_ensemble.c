@@ -278,9 +278,11 @@ int main(int argc, char **argv)
   	// The filename will contain 6 digits after the decimals by default
   	FILE *hcube_output_fp;
   	char hcube_output_filename[MAXSTRING];
-  	char hcube_output_nc_filename[MAXSTRING];
+  	char hcube_output_nc4_filename[MAXSTRING];
+  	char hcube_output_nc3_filename[MAXSTRING];
   	sprintf(hcube_output_filename, "%s/file_%d/txt/hcube_lat_%f_long_%f.txt", metrics_root, filenum, soil_con.lat, soil_con.lng);
-  	sprintf(hcube_output_nc_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc", metrics_root, filenum, soil_con.lat, soil_con.lng);
+  	sprintf(hcube_output_nc4_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc4", metrics_root, filenum, soil_con.lat, soil_con.lng);
+  	sprintf(hcube_output_nc3_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc3", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	hcube_output_fp = fopen(hcube_output_filename, "w");
   	
   	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
@@ -294,7 +296,7 @@ int main(int argc, char **argv)
         // Initialize netcdf file
         int status;
         int ncid;
-        status = nc_create(hcube_output_nc_filename,NC_CLOBBER|NC_NETCDF4, &ncid);
+        status = nc_create(hcube_output_nc4_filename,NC_CLOBBER|NC_NETCDF4, &ncid);
         //Define the netcdf dimensions
         int timeid;
         int ens_id;
@@ -391,6 +393,14 @@ int main(int argc, char **argv)
 
        // Close the netcdf file
        status = nc_close(ncid);
+      
+       // Convert from nc4 to nc3 (This is embarassing... but it works!)
+       char system_call_string[MAXSTRING];
+       sprintf(system_call_string,"nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
+       system(system_call_string);
+       // Remove netcdf 4 file
+       sprintf(system_call_string,"rm %s",hcube_output_nc4_filename);
+       system(system_call_string);
 	
     fclose(hcube_fp);
   	fclose(hcube_output_fp);
