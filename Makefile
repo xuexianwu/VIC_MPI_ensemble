@@ -50,16 +50,16 @@
 SHELL = /bin/bash
 
 # Set CC = your compiler here
-CC = cc
-#CC = mpicc
+# CC = cc
+CC = mpicc
 
 # Uncomment for normal optimized code flags (fastest run option)
-#CFLAGS  = -I. -O3 -Wall -Wno-unused
+CFLAGS  = -I. -O3 -Wall -Wno-unused
 #LIBRARY = -L./borg -lm -lborg
 #LIBRARY = -lnetcdf
 
 # Uncomment to include debugging information
-CFLAGS  = -I. -g #-Wall -Wno-unused
+#CFLAGS  = -I. -g #-Wall -Wno-unused
 #LIBRARY = -lm
 
 # Uncomment to include execution profiling information
