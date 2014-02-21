@@ -28,7 +28,7 @@ float obs[12];
                         
 // Calibration wrapper function to be used with Borg
 // Receives parameters and writes objective values to an array
-void vic_calibration_wrapper(double* vars, double* objs);
+void vic_calibration_wrapper(double* vars, double* objs,grads_file_struct *);
 
 // Make these variables global so the wrapper function can use them
 // (Will this wreck anything else?)
@@ -64,9 +64,6 @@ int main(int argc, char **argv)
   char MODEL_DONE;
   char RUN_MODEL;
   int cell_cnt;
-  //Resampling variables
-  double dt_rs;
-  double dt_bs = 1; //hours
   int nrs;//5; Number of resampling intervals
   int soil_ncells;
   int ipos; //initial position
@@ -87,7 +84,7 @@ int main(int argc, char **argv)
   //grads_file.month = 1;
   //grads_file.day = 1;
   grads_file.hour = 0;
-  grads_file.dt = 3;
+  //grads_file.dt = 3;
 
   //Grads file info
   fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.res = tmp_f;
@@ -103,26 +100,11 @@ int main(int argc, char **argv)
   fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.undef = tmp_f;
   //printf("%s %f\n",tmp_s,grads_file.undef);
   fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.nt = tmp_i;
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.dt = tmp_i;
   fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.year = tmp_i;
   fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.month = tmp_i;
   fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.day = tmp_i;
   //printf("%s %d\n",tmp_s,grads_file.nt);
-  //Meteorological input
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.tair,&tmp_i); grads_file.nt_tair = tmp_i;
-  //printf("%s %s\n",tmp_s,forcing_name.tair);
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.prec,&tmp_i); grads_file.nt_prec = tmp_i;
-  //printf("%s %s\n",tmp_s,forcing_name.prec);
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.wind,&tmp_i); grads_file.nt_wind = tmp_i;
-  //printf("%s %s\n",tmp_s,forcing_name.wind);
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.shum,&tmp_i); grads_file.nt_shum = tmp_i;
-  //printf("%s %s\n",tmp_s,forcing_name.shum);
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.pres,&tmp_i); grads_file.nt_pres = tmp_i;
-  //printf("%s %s\n",tmp_s,forcing_name.pres);
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.lwdown,&tmp_i); grads_file.nt_lwdown = tmp_i;
-  //printf("%s %s\n",tmp_s,forcing_name.lwdown);
-  fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.swdown,&tmp_i); grads_file.nt_swdown = tmp_i;
-  //printf("%d\n",grads_file.nt_swdown);
-  //printf("%s %s\n",tmp_s,forcing_name.swdown);
   //Land Info
   fscanf(global_fp,"%s %s",tmp_s,&names.soil);
   //printf("%s %s\n",tmp_s,names.soil);
@@ -155,10 +137,6 @@ int main(int argc, char **argv)
   //return;
   /** Obtain the global information for VIC **/
   global_param = get_global_param(&names,&grads_file); //Fill up the global parameter file
-
-  /** Open up the forcing files **/
-  int forcing_ncid;
-  forcing_ncid = open_netcdf_forcing_files(&netcdf_forcing_filename);
 
   /** Initialize the structures to hold the atmospheric data (before passing to VIC)**/
   int ncells = 1; //The number of cells to read in at once
@@ -227,7 +205,12 @@ int main(int argc, char **argv)
     calc_root_fractions(veg_con, &soil_con);
     /** Read in the forcing data for a single cell **/
     //extract_cell(&forcing_filep,&grads_file,soil_con.lat,soil_con.lng,forcing_cell);
+    /** Get data for the cell **/
+    int forcing_ncid;
+    forcing_ncid = open_netcdf_forcing_files(&netcdf_forcing_filename);
     extract_cell_netcdf(forcing_ncid,&grads_file,forcing_cell,soil_con.gridcel);
+    nc_close(forcing_ncid);
+
     //extract_cell_netcdf(forcing_file,&grads_file,soil_celln);
     
 	  // Copy the forcing data to the VIC structure
@@ -240,34 +223,6 @@ int main(int argc, char **argv)
     float lat,lon,tmp,linem; 
     int flag_cell = 1;
     linem = 0;
-	
-    /*while (linem <  14548){
-      fscanf(obs_fp,"%f,%f",&lat,&lon);
-      fgetc(obs_fp);
-	  
-	  //printf("%f %f\n",lat,lon);
-	  
-	  // Read the 12 monthly values
-      for (i = 0; i < 12; i++) {
-        fscanf(obs_fp,"%f",&tmp);
-        fgetc(obs_fp);
-        obs[i] = tmp;
-      }
-      
-	  // If this was the right row, break. Otherwise keep looking.
-      if (lat == soil_con.lat && lon == soil_con.lng){
-        flag_cell = 0;
-        break;
-      }
-	  
-      linem = linem + 1;
-    } 
-    if (flag_cell == 1){
-      //We don't have runoff observations for this cell so there is no need to calibrate...
-      printf("There are no observations for this cell\n");
-      icell = icell + np;
-      continue; 
-    }*/
 	
 	  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Changes for hypercube version start here
@@ -297,6 +252,8 @@ int main(int argc, char **argv)
   	sprintf(hcube_output_nc4_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc4", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	sprintf(hcube_output_nc3_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc3", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	hcube_output_fp = fopen(hcube_output_filename, "w");
+        printf("%s\n",hcube_output_filename);
+        printf("%s\n",hcube_output_nc4_filename);
   	
   	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
   	
@@ -360,13 +317,15 @@ int main(int argc, char **argv)
   		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
   		
   		// Run the model with these parameters. record objective(s).
-  		vic_calibration_wrapper(hcube_params, hcube_obj);
+  		//vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file);
+                printf("finished\n");
   		
   		for(j = 0; j < 12; j++) {
   		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
   		  if(j < 11) fprintf(hcube_output_fp, " ");
   		  else fprintf(hcube_output_fp, "\n");
   		}
+                printf("finished\n");
 
 		//Place output in netcdf file
                 for (itime = 0; itime < global_param.nrecs; itime++){
@@ -387,25 +346,37 @@ int main(int argc, char **argv)
                  //status = nc_put_var1_float(ncid,qbase_id,index,&qbase[itime]);
                  //status = nc_put_var1_float(ncid,qsurf_id,index,&qsurf[itime]);
                 }
+                printf("finished %d %d\n",i,global_param.nrecs);
  		count[0] = 1;
                 count[1] = global_param.nrecs;
                 start[0] = i;
                 start[1] = 0;
-		status = nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                printf("here\n");
+		nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                printf("here1\n");
 		status = nc_put_vara_float(ncid,evap_id,start,count,&evap[0]);
+                printf("here1\n");
 		status = nc_put_vara_float(ncid,sm1_id,start,count,&sm1[0]);
+                printf("here1\n");
 		status = nc_put_vara_float(ncid,sm2_id,start,count,&sm2[0]);
+                printf("here1\n");
 		status = nc_put_vara_float(ncid,sm3_id,start,count,&sm3[0]);
+                printf("here1\n");
 		status = nc_put_vara_float(ncid,qbase_id,start,count,&qbase[0]);
+                printf("here1\n");
 		status = nc_put_vara_float(ncid,qsurf_id,start,count,&qsurf[0]);
+                printf("here1\n");
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
+                printf("here2\n");
   		
   	}
 
        // Close the netcdf file
+       printf("here3\n");
        status = nc_close(ncid);
+       printf("finished\n");
       
        // Convert from nc4 to nc3 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];
@@ -416,6 +387,7 @@ int main(int argc, char **argv)
        system(system_call_string);
        sprintf(system_call_string, "chmod 770 %s", hcube_output_nc3_filename);
        system(system_call_string);
+       printf("finished\n");
 	
     fclose(hcube_fp);
   	fclose(hcube_output_fp);
@@ -429,6 +401,7 @@ int main(int argc, char **argv)
   
   //fclose(fp_metrics);
   //Free used memory//
+  printf("here0\n");
   free_atmos(global_param.nrecs, &atmos);
   free_dmy(&dmy);
   free_veglib(&veg_lib);
@@ -438,9 +411,12 @@ int main(int argc, char **argv)
   fclose(filep.soilparam);
   fclose(filep.vegparam);
   fclose(filep.veglib);
+  printf("here1\n");
   /** Close up the forcing files **/
-  close_forcing_files(&forcing_filep);
+  //nc_close(forcing_ncid);
+  //close_forcing_files(&forcing_filep);
   /** Deallocate the global forcing structure **/
+  printf("here2\n");
   deallocate_forcing(&forcing_cell,&grads_file,ncells);
   /** Free memory **/
   free(rrmse);
@@ -453,7 +429,7 @@ int main(int argc, char **argv)
 
 // Calibration wrapper function to be used with Borg
 // Receives parameters and writes objective values to an array
-void vic_calibration_wrapper(double* vars, double* objs) {
+void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grads_file) {
     
   float sim[12],count[12],qbase,qsurf;
   time_t t;
@@ -468,7 +444,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   gtime.tm_hour = 0;
   gtime.tm_mday = 0;
   gtime.tm_mon = 0;
-  gtime.tm_year = 2000 - 1900;//grads_file.year - 1900;
+  gtime.tm_year = grads_file->year - 1900;//grads_file.year - 1900;
   gtime_original = gtime;
   // Initialize all the simulated data
   for (i = 0; i < n*nvars; i++){

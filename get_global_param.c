@@ -148,7 +148,6 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
   global.resolution    = MISSING;
   global.dt = grads_file->dt;//1; //hours
   global.nrecs = -99999; //Number of time steps
-  printf("%d %d %d\n",grads_file->year,grads_file->month,grads_file->day);
   global.startyear = grads_file->year; //Start year
   global.startmonth = grads_file->month;//Start month
   global.startday = grads_file->day;//Start day
@@ -218,7 +217,7 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
       param_set.FORCE_FORMAT[0] = ASCII;
       param_set.FORCE_ENDIAN[0] = LITTLE;
       param_set.N_TYPES[0] = 7;
-      param_set.FORCE_DT[0] = 1;
+      param_set.FORCE_DT[0] = grads_file->dt;
       global.forceyear[0] = grads_file->year;//2000;
       global.forcemonth[0] = grads_file->month;//1;
       global.forceday[0] = grads_file->day;//1;

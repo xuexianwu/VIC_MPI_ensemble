@@ -456,6 +456,7 @@ void initialize_atmos_BLUEWATERS(atmos_data_struct        *atmos,
           }
         }
       }
+      
     }
   }
 
