@@ -116,7 +116,6 @@ int main(int argc, char **argv)
   fscanf(global_fp,"%s %s",tmp_s,&names.snowband);
   //netcdf forcing file
   fscanf(global_fp,"%s %s %d",tmp_s,&netcdf_forcing_filename,&tmp_i); grads_file.nt_netcdf = tmp_i;
-  printf("%s\n",netcdf_forcing_filename);
   //Output Metrics
   fscanf(global_fp,"%s %s",tmp_s,&metrics_root);
   //printf("%s %s\n",tmp_s,metrics_root);
@@ -252,8 +251,6 @@ int main(int argc, char **argv)
   	sprintf(hcube_output_nc4_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc4", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	sprintf(hcube_output_nc3_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc3", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	hcube_output_fp = fopen(hcube_output_filename, "w");
-        printf("%s\n",hcube_output_filename);
-        printf("%s\n",hcube_output_nc4_filename);
   	
   	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
   	
@@ -294,6 +291,8 @@ int main(int argc, char **argv)
         nc_def_var_deflate(ncid,sm1_id,1,1,3);
         nc_def_var_deflate(ncid,sm2_id,1,1,3);
         nc_def_var_deflate(ncid,sm3_id,1,1,3);
+        //Close the file
+        status = nc_close(ncid);
 	//Define output variables
         int itime;
         float qsurf[global_param.nrecs];
@@ -317,15 +316,13 @@ int main(int argc, char **argv)
   		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
   		
   		// Run the model with these parameters. record objective(s).
-  		//vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file);
-                printf("finished\n");
+  		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file);
   		
   		for(j = 0; j < 12; j++) {
   		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
   		  if(j < 11) fprintf(hcube_output_fp, " ");
   		  else fprintf(hcube_output_fp, "\n");
   		}
-                printf("finished\n");
 
 		//Place output in netcdf file
                 for (itime = 0; itime < global_param.nrecs; itime++){
@@ -346,37 +343,36 @@ int main(int argc, char **argv)
                  //status = nc_put_var1_float(ncid,qbase_id,index,&qbase[itime]);
                  //status = nc_put_var1_float(ncid,qsurf_id,index,&qsurf[itime]);
                 }
-                printf("finished %d %d\n",i,global_param.nrecs);
  		count[0] = 1;
                 count[1] = global_param.nrecs;
                 start[0] = i;
                 start[1] = 0;
-                printf("here\n");
+
+                //Open file
+                nc_open(hcube_output_nc4_filename,NC_WRITE,&ncid);
+                nc_inq_varid(ncid,"prec",&prec_id);
 		nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
-                printf("here1\n");
+                nc_inq_varid(ncid,"evap",&evap_id);
 		status = nc_put_vara_float(ncid,evap_id,start,count,&evap[0]);
-                printf("here1\n");
+                nc_inq_varid(ncid,"sm1",&sm1_id);
 		status = nc_put_vara_float(ncid,sm1_id,start,count,&sm1[0]);
-                printf("here1\n");
+                nc_inq_varid(ncid,"sm2",&sm2_id);
 		status = nc_put_vara_float(ncid,sm2_id,start,count,&sm2[0]);
-                printf("here1\n");
+                nc_inq_varid(ncid,"sm3",&sm3_id);
 		status = nc_put_vara_float(ncid,sm3_id,start,count,&sm3[0]);
-                printf("here1\n");
+                nc_inq_varid(ncid,"qbase",&qbase_id);
 		status = nc_put_vara_float(ncid,qbase_id,start,count,&qbase[0]);
-                printf("here1\n");
+                nc_inq_varid(ncid,"qsurf",&qsurf_id);
 		status = nc_put_vara_float(ncid,qsurf_id,start,count,&qsurf[0]);
-                printf("here1\n");
+       
+                // Close the netcdf file
+                status = nc_close(ncid);
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
-                printf("here2\n");
   		
   	}
 
-       // Close the netcdf file
-       printf("here3\n");
-       status = nc_close(ncid);
-       printf("finished\n");
       
        // Convert from nc4 to nc3 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];
@@ -387,7 +383,6 @@ int main(int argc, char **argv)
        system(system_call_string);
        sprintf(system_call_string, "chmod 770 %s", hcube_output_nc3_filename);
        system(system_call_string);
-       printf("finished\n");
 	
     fclose(hcube_fp);
   	fclose(hcube_output_fp);
@@ -401,7 +396,6 @@ int main(int argc, char **argv)
   
   //fclose(fp_metrics);
   //Free used memory//
-  printf("here0\n");
   free_atmos(global_param.nrecs, &atmos);
   free_dmy(&dmy);
   free_veglib(&veg_lib);
@@ -411,12 +405,10 @@ int main(int argc, char **argv)
   fclose(filep.soilparam);
   fclose(filep.vegparam);
   fclose(filep.veglib);
-  printf("here1\n");
   /** Close up the forcing files **/
   //nc_close(forcing_ncid);
   //close_forcing_files(&forcing_filep);
   /** Deallocate the global forcing structure **/
-  printf("here2\n");
   deallocate_forcing(&forcing_cell,&grads_file,ncells);
   /** Free memory **/
   free(rrmse);
