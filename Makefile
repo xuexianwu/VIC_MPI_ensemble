@@ -54,7 +54,7 @@ CC = cc
 # CC = mpicc
 
 # Uncomment for normal optimized code flags (fastest run option)
-CFLAGS  = -I. -O3 -Wall -Wno-unused
+CFLAGS  = -I. -O3 #-Wall -Wno-unused
 #LIBRARY = -L./borg -lm -lborg
 #LIBRARY = -lnetcdf
 
