@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <vicNl.h>
 #include <string.h>
+#include <vic_ensemble_io.h>
  
 static char vcid[] = "$Id: get_global_param.c,v 5.22.2.39 2012/02/06 23:54:00 vicadmin Exp $";
 
@@ -13,7 +14,7 @@ int NR;		      /* array index for atmos struct that indicates
 int NF;		      /* array index loop counter limit for atmos
 			 struct that indicates the SNOW_STEP values */
  
-global_param_struct get_global_param(filenames_struct *names)
+global_param_struct get_global_param(filenames_struct *names,grads_file_struct *grads_file)
 /**********************************************************************
   get_global_param	Keith Cherkauer	            March 1998
 
@@ -145,11 +146,12 @@ global_param_struct get_global_param(filenames_struct *names)
   global.endmonth      = MISSING;
   global.endday        = MISSING;
   global.resolution    = MISSING;
-  global.dt = 1; //hours
+  global.dt = grads_file->dt;//1; //hours
   global.nrecs = -99999; //Number of time steps
-  global.startyear = 2000; //Start year
-  global.startmonth = 1;//Start month
-  global.startday = 1;//Start day
+  printf("%d %d %d\n",grads_file->year,grads_file->month,grads_file->day);
+  global.startyear = grads_file->year; //Start year
+  global.startmonth = grads_file->month;//Start month
+  global.startday = grads_file->day;//Start day
   global.starthour = 0;//Start hour
   global.endyear = 2010;//End year
   global.endmonth = 12;//End month
@@ -189,8 +191,8 @@ global_param_struct get_global_param(filenames_struct *names)
       *************************************/
       options.Nlayer = 3;
       options.Nnode = 20;//20;
-      global.dt = 1; //hours
-      options.SNOW_STEP = 1;
+      global.dt = grads_file->dt;//1; //hours
+      options.SNOW_STEP = grads_file->dt;//1;
       options.FULL_ENERGY=TRUE;      
       options.FROZEN_SOIL=FALSE;
       options.QUICK_FLUX=FALSE;
@@ -217,9 +219,9 @@ global_param_struct get_global_param(filenames_struct *names)
       param_set.FORCE_ENDIAN[0] = LITTLE;
       param_set.N_TYPES[0] = 7;
       param_set.FORCE_DT[0] = 1;
-      global.forceyear[0] = 2000;
-      global.forcemonth[0] = 1;
-      global.forceday[0] = 1;
+      global.forceyear[0] = grads_file->year;//2000;
+      global.forcemonth[0] = grads_file->month;//1;
+      global.forceday[0] = grads_file->day;//1;
       global.forcehour[0] = 0;
       options.GRID_DECIMAL = 2;
       global.wind_h = 2.0;

@@ -18,7 +18,7 @@ typedef struct {
   char swdown[MAXSTRING];    /* Downward Shortwave Radiation (W/m2) */
 } forcing_name_struct;
 
-typedef struct{
+/**typedef struct{
   int nx;
   int ny;
   double res;
@@ -37,7 +37,9 @@ typedef struct{
   int nt_pres;
   int nt_lwdown;
   int nt_swdown;
-} grads_file_struct;
+  int nt_netcdf;
+  int dt;
+} grads_file_struct;**/
 
 typedef struct{
   double *tair;

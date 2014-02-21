@@ -3,6 +3,7 @@
 #include <string.h>
 #include <vicNl.h>
 #include <vic_ensemble_io.h>
+#include <netcdf.h>
 
 void read_forcing();
 void downscale_data();
@@ -19,6 +20,13 @@ void open_forcing_files(forcing_filep_struct *forcing_filep, forcing_name_struct
   //printf("Opened all the forcing files\n");
 }
 
+int open_netcdf_forcing_files(char netcdf_forcing_filename[MAXSTRING]){
+  int ncid;
+  /** Open netcdf forcing file **/
+  nc_open(netcdf_forcing_filename,NC_NOWRITE,&ncid);
+  return ncid;
+}
+
 void close_forcing_files(forcing_filep_struct *forcing_filep){
   /** Close the forcing files **/
   fclose(forcing_filep->tair); //Air temperature
@@ -29,6 +37,47 @@ void close_forcing_files(forcing_filep_struct *forcing_filep){
   fclose(forcing_filep->lwdown); //Downward Longwave Radiation
   fclose(forcing_filep->swdown); //Downward Shortwave Radiation
   //printf("Closed all the forcing files\n");
+}
+
+void extract_cell_netcdf(int ncid, grads_file_struct *grads_file, forcing_cell_struct *forcing_cell, int cell_id){
+
+ int ncells = 15836;
+ int nt = grads_file->nt_netcdf;//93504;
+ int varid;
+ int cell_ids[ncells];
+ int icell;
+ size_t count[2],start[2];
+ count[0] = nt;
+ count[1] = 1;
+ start[0] = 0;
+ float data_prec[nt];
+ float data_pres[nt];
+ float data_wind[nt];
+ float data_swdown[nt];
+ float data_lwdown[nt];
+ float data_tair[nt];
+ float data_shum[nt];
+
+ //Read in the cell id array
+ nc_inq_varid(ncid,"id",&varid);
+ nc_get_var_int(ncid,varid,&cell_ids[0]);
+
+ //Figure out the cells placement in the ids array
+ for (icell = 0; icell < ncells; icell++){
+  if (cell_ids[icell] == cell_id){break;}
+ }
+ start[1] = cell_id;
+
+ //Extract the data per variable
+  /** Precipitation **/
+  nc_inq_varid(ncid,"prec",&varid);
+  nc_get_vara_float(ncid,varid,start,count,&data_prec[0]);
+  for (int i = 0; i < nt; i++){
+   printf("%f\n",data_prec[i]);
+  }
+  //read_forcing(grads_file,forcing_filep->prec,&data_prec,i,j,grads_file->nt_prec);
+  //downscale_data(grads_file->nt,grads_file->nt_prec,data_prec,&data,1);
+  //for (t = 0; t < grads_file->nt; t++){forcing_cell[0].prec[t] = data[t];}
 }
 
 void extract_cell(forcing_filep_struct *forcing_filep, grads_file_struct *grads_file,

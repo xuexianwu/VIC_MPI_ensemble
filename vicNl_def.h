@@ -536,6 +536,29 @@ extern int NF;			/* array index loop counter limit for atmos
 
 /***** Data Structures *****/
 
+typedef struct{
+  int nx;
+  int ny;
+  double res;
+  double undef;
+  double minlat;
+  double minlon;
+  int nt;
+  int year;
+  int month;
+  int day;
+  int hour;
+  int nt_prec;
+  int nt_tair;
+  int nt_wind;
+  int nt_shum;
+  int nt_pres;
+  int nt_lwdown;
+  int nt_swdown;
+  int nt_netcdf;
+  int dt;
+} grads_file_struct;
+
 /** file structures **/
 typedef struct {
   FILE *forcing[2];     /* atmospheric forcing data files */

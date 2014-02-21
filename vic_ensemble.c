@@ -14,8 +14,10 @@ int vicNl_cell();
 void resample();
 void Comparision_Statistics();
 void open_forcing_files();
+int open_netcdf_forcing_files();
 void close_forcing_files();
 void extract_cell();
+void extract_cell_netcdf();
 void allocate_forcing();
 void deallocate_forcing();
 void initialize_atmos_BLUEWATERS(atmos_data_struct *, dmy_struct *,// FILE **,
@@ -80,10 +82,12 @@ int main(int argc, char **argv)
   float tmp_f;
   int tmp_i;
   char metrics_root[MAXSTRING];
-  grads_file.year = 2000;
-  grads_file.month = 1;
-  grads_file.day = 1;
+  char netcdf_forcing_filename[MAXSTRING];
+  //grads_file.year = 2000;
+  //grads_file.month = 1;
+  //grads_file.day = 1;
   grads_file.hour = 0;
+  grads_file.dt = 3;
 
   //Grads file info
   fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.res = tmp_f;
@@ -99,6 +103,9 @@ int main(int argc, char **argv)
   fscanf(global_fp,"%s %f",tmp_s,&tmp_f); grads_file.undef = tmp_f;
   //printf("%s %f\n",tmp_s,grads_file.undef);
   fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.nt = tmp_i;
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.year = tmp_i;
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.month = tmp_i;
+  fscanf(global_fp,"%s %d",tmp_s,&tmp_i); grads_file.day = tmp_i;
   //printf("%s %d\n",tmp_s,grads_file.nt);
   //Meteorological input
   fscanf(global_fp,"%s %s %d",tmp_s,&forcing_name.tair,&tmp_i); grads_file.nt_tair = tmp_i;
@@ -125,6 +132,9 @@ int main(int argc, char **argv)
   //printf("%s %s\n",tmp_s,names.veg);
   //snowbands file
   fscanf(global_fp,"%s %s",tmp_s,&names.snowband);
+  //netcdf forcing file
+  fscanf(global_fp,"%s %s %d",tmp_s,&netcdf_forcing_filename,&tmp_i); grads_file.nt_netcdf = tmp_i;
+  printf("%s\n",netcdf_forcing_filename);
   //Output Metrics
   fscanf(global_fp,"%s %s",tmp_s,&metrics_root);
   //printf("%s %s\n",tmp_s,metrics_root);
@@ -144,15 +154,12 @@ int main(int argc, char **argv)
   initialize_global();          
   //return;
   /** Obtain the global information for VIC **/
-  global_param = get_global_param(&names); //Fill up the global parameter file
+  global_param = get_global_param(&names,&grads_file); //Fill up the global parameter file
 
   /** Open up the forcing files **/
-  open_forcing_files(&forcing_filep,&forcing_name);
+  int forcing_ncid;
+  forcing_ncid = open_netcdf_forcing_files(&netcdf_forcing_filename);
 
-  /** Open up the observations files **/
-/*  FILE *obs_fp;
-  obs_fp = fopen("/scratch/sciteam/nchaney/data/PSU_AERO_PU/1.0deg/OBS/GRDC_Monthly_Climatology.txt","r");
-*/
   /** Initialize the structures to hold the atmospheric data (before passing to VIC)**/
   int ncells = 1; //The number of cells to read in at once
   allocate_forcing(&forcing_cell,&grads_file,ncells);
@@ -219,7 +226,9 @@ int main(int argc, char **argv)
     veg_con = read_vegparam(filep.vegparam,soil_con.gridcel,Nveg_type);
     calc_root_fractions(veg_con, &soil_con);
     /** Read in the forcing data for a single cell **/
-    extract_cell(&forcing_filep,&grads_file,soil_con.lat,soil_con.lng,forcing_cell);
+    //extract_cell(&forcing_filep,&grads_file,soil_con.lat,soil_con.lng,forcing_cell);
+    extract_cell_netcdf(forcing_ncid,&grads_file,forcing_cell,soil_con.gridcel);
+    //extract_cell_netcdf(forcing_file,&grads_file,soil_celln);
     
 	  // Copy the forcing data to the VIC structure
     initialize_atmos_BLUEWATERS(atmos, dmy, forcing_cell,&soil_con);
@@ -459,7 +468,7 @@ void vic_calibration_wrapper(double* vars, double* objs) {
   gtime.tm_hour = 0;
   gtime.tm_mday = 0;
   gtime.tm_mon = 0;
-  gtime.tm_year = 2000 - 1900;
+  gtime.tm_year = 2000 - 1900;//grads_file.year - 1900;
   gtime_original = gtime;
   // Initialize all the simulated data
   for (i = 0; i < n*nvars; i++){

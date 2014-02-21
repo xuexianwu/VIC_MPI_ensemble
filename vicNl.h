@@ -108,6 +108,7 @@
 #include <math.h>
 #include <vicNl_def.h>
 #include <LAKE.h>
+//#include <vic_ensemble_io.h>
 
 /*** SubRoutine Prototypes ***/
 
@@ -352,7 +353,7 @@ double get_avg_temp(double, double, double *, double *, int);
 double get_dist(double, double, double, double);
 void   get_force_type(char *, int, int *);
 //global_param_struct get_global_param(filenames_struct *, FILE *);
-global_param_struct get_global_param(filenames_struct *);
+global_param_struct get_global_param(filenames_struct *,grads_file_struct *);
 void   get_next_time_step(int *, int *, int *, int *, int *, int);
 
 double hermint(double, int, double *, double *, double *, double *, double *);
