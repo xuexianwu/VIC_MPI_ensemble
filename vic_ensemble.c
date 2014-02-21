@@ -123,6 +123,8 @@ int main(int argc, char **argv)
   //printf("%s %s\n",tmp_s,names.veglib);
   fscanf(global_fp,"%s %s",tmp_s,&names.veg);
   //printf("%s %s\n",tmp_s,names.veg);
+  //snowbands file
+  fscanf(global_fp,"%s %s",tmp_s,&names.snowband);
   //Output Metrics
   fscanf(global_fp,"%s %s",tmp_s,&metrics_root);
   //printf("%s %s\n",tmp_s,metrics_root);
@@ -211,6 +213,8 @@ int main(int argc, char **argv)
       linen = linen + 1;
     }
     printf("%d %f %f\n",soil_con.gridcel,soil_con.lat,soil_con.lng);
+    /** Read Elevation Band Data if Used **/
+    read_snowband(filep.snowband, &soil_con);
     /** Read the vegetation parameters **/
     veg_con = read_vegparam(filep.vegparam,soil_con.gridcel,Nveg_type);
     calc_root_fractions(veg_con, &soil_con);
@@ -421,6 +425,7 @@ int main(int argc, char **argv)
   free_veglib(&veg_lib);
   free_vegcon(&veg_con);
   //Close all the files
+  fclose(filep.snowband);
   fclose(filep.soilparam);
   fclose(filep.vegparam);
   fclose(filep.veglib);

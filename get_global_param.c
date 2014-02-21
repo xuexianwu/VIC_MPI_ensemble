@@ -178,7 +178,7 @@ global_param_struct get_global_param(filenames_struct *names)
   strcpy(names->soil_dir,     "MISSING");
   //strcpy(names->veg,          "MISSING");
   //strcpy(names->veglib,       "MISSING");
-  strcpy(names->snowband,     "MISSING");
+  //strcpy(names->snowband,     "MISSING");
   strcpy(names->lakeparam,    "MISSING");
   strcpy(names->result_dir,   "MISSING");
   global.out_dt        = MISSING;
@@ -228,6 +228,7 @@ global_param_struct get_global_param(filenames_struct *names)
       //strcpy(names->soil,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/Soil.txt");
       //strcpy(names->veglib,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/veglib.dat");
       //strcpy(names->veg,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/LAI.txt");
+      options.SNOW_BAND = 10;
       options.VEGPARAM_LAI=TRUE;
       options.LAI_SRC = LAI_FROM_VEGPARAM;
       options.ROOT_ZONES = 2;//3;

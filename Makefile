@@ -59,7 +59,7 @@ CC = cc
 #LIBRARY = -lnetcdf
 
 # Uncomment to include debugging information
-CFLAGS  = -I. -O3 #-Wall -Wno-unused
+CFLAGS  = -I. -g #-Wall -Wno-unused
 #LIBRARY = -lm
 
 # Uncomment to include execution profiling information
