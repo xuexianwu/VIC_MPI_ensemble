@@ -481,7 +481,8 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
   for (i = 0; i < n; i++){
     t = t + 3600*dt;
     gmtime_r(&t,&gtime);
-    if (gtime.tm_year <= 100){continue;}
+    printf("%d %d %d\n",gtime.tm_year,grads_file->year-1900,grads_file->year);
+    if (gtime.tm_year <= (grads_file->year - 1900)){continue;}
     qsurf = simulated_data[i*nvars+1];
     qbase = simulated_data[i*nvars+2];
     sim[gtime.tm_mon] = sim[gtime.tm_mon] + qsurf + qbase;
