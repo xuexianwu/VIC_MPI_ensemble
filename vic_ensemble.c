@@ -427,7 +427,7 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
   time_t t;
   int n = global_param.nrecs;
 	int i;
-  int dt = 1;
+  int dt = grads_file->dt;
   int nvars = 7;
   struct tm gtime;
   struct tm gtime_original;
