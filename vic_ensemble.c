@@ -451,7 +451,6 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
   //if(m==2)output_array[out_pos] = out_data[OUT_BASEFLOW].data[0];//Baseflow [mm]
 
   // Set parameter values in soil struct
-  /*
   // Note: to run default parameters, comment these out.
   soil_con.b_infilt = pow(10,vars[0]);
   soil_con.Ds = pow(10,vars[1]);
@@ -471,7 +470,6 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
     //ksat - between 100 and 10,000 [mm/day]
     soil_con.Ksat[i] = pow(10,vars[8]);
   }
-  */
     
   // Run the model
   vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
