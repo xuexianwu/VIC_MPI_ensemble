@@ -155,7 +155,7 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
   global.endyear = 2010;//End year
   global.endmonth = 12;//End month
   global.endday = 31;//End day
-  global.resolution = 0.1;//Resolution
+  global.resolution = 1.0;//Resolution
   global.MAX_SNOW_TEMP = 0.5;
   global.MIN_RAIN_TEMP = -0.5;
   global.measure_h     = 2.0;
