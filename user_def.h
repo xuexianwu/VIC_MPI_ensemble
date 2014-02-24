@@ -24,7 +24,7 @@
 **********************************************************************/
 
 /***** If TRUE include all model messages to stdout, and stderr *****/
-#define VERBOSE FALSE
+#define VERBOSE TRUE
 
 /***** If TRUE all energy balance calculations are iterated to minimize
        the total column (air, canopy, snow and ground) error.  Otherwise
@@ -37,7 +37,7 @@
        to estimate the maximum unfrozen water content equation.  This 
        significantly reduces the run time with frozen soil, but may
        introduce new errors (STILL UNDER TESTING, ALSO NEEDS DEBUGGING) *****/
-#define QUICK_FS FALSE
+#define QUICK_FS TRUE
 #define QUICK_FS_TEMPS 7
 
 /***** If TRUE VIC uses the linear interpolation of the logarithm of the

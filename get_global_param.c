@@ -193,13 +193,13 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
       global.dt = grads_file->dt;//1; //hours
       options.SNOW_STEP = grads_file->dt;//1;
       options.FULL_ENERGY=TRUE;      
-      options.FROZEN_SOIL=FALSE;
+      options.FROZEN_SOIL=TRUE;
       options.QUICK_FLUX=FALSE;
       options.QUICK_SOLVE=TRUE; 
-      options.NOFLUX=FALSE;
+      options.NOFLUX=TRUE;
       options.IMPLICIT=FALSE;
       options.EXP_TRANS=FALSE;
-      options.DIST_PRCP = FALSE;
+      options.DIST_PRCP = TRUE;
       options.PREC_EXPT = 0.6;
       options.CORRPREC=FALSE;
       options.MIN_WIND_SPEED = 0.1;
@@ -208,7 +208,7 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
       options.CONTINUEONERROR=FALSE;
       options.COMPUTE_TREELINE=FALSE;
       options.EQUAL_AREA=FALSE;
-      global.resolution = 0.1;
+      global.resolution = 1.0;
       options.PLAPSE = TRUE;
 
       /*************************************
