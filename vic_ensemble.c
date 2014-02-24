@@ -427,7 +427,7 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
   time_t t;
   int n = global_param.nrecs;
 	int i;
-  int dt = 1;
+  int dt = grads_file->dt;
   int nvars = 7;
   struct tm gtime;
   struct tm gtime_original;
@@ -481,7 +481,7 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
   for (i = 0; i < n; i++){
     t = t + 3600*dt;
     gmtime_r(&t,&gtime);
-    if (gtime.tm_year <= 100){continue;}
+    if (gtime.tm_year <= (grads_file->year - 1900)){continue;}
     qsurf = simulated_data[i*nvars+1];
     qbase = simulated_data[i*nvars+2];
     sim[gtime.tm_mon] = sim[gtime.tm_mon] + qsurf + qbase;

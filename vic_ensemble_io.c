@@ -67,7 +67,7 @@ void extract_cell_netcdf(int ncid, grads_file_struct *grads_file, forcing_cell_s
  for (icell = 0; icell < ncells; icell++){
   if (cell_ids[icell] == cell_id){break;}
  }
- start[1] = cell_id;
+ start[1] = icell;//cell_id;
 
  //Extract the data per variable
   /** Precipitation **/
