@@ -24,7 +24,7 @@
 **********************************************************************/
 
 /***** If TRUE include all model messages to stdout, and stderr *****/
-#define VERBOSE TRUE
+#define VERBOSE FALSE
 
 /***** If TRUE all energy balance calculations are iterated to minimize
        the total column (air, canopy, snow and ground) error.  Otherwise
