@@ -193,7 +193,7 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
       global.dt = grads_file->dt;//1; //hours
       options.SNOW_STEP = grads_file->dt;//1;
       options.FULL_ENERGY=TRUE;      
-      options.FROZEN_SOIL=TRUE;
+      options.FROZEN_SOIL=FALSE;//TRUE;
       options.QUICK_FLUX=FALSE;
       options.QUICK_SOLVE=TRUE; 
       options.NOFLUX=TRUE;
