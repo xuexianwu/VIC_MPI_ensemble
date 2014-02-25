@@ -72,9 +72,7 @@ void extract_cell_netcdf(int ncid, grads_file_struct *grads_file, forcing_cell_s
  //Extract the data per variable
   /** Precipitation **/
   //printf("Reading precipitation\n");
-  //printf("%d\n",ncid);
   nc_inq_varid(ncid,"prec",&varid);
-  //printf("%d %d\n",varid,icell);
   nc_get_vara_float(ncid,varid,start,count,&data_prec[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_prec,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].prec[t] = (double)(data[t]);}

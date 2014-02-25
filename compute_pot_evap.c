@@ -67,12 +67,12 @@ void compute_pot_evap(int veg_class,
     }
     gsm_inv = 1.0;
     ref_crop = ref_veg_ref_crop[i];
+    net_short = (1.0 - albedo) * shortwave;
     rc = calc_rc(rs, net_short, RGL, tair, vpd, lai, gsm_inv, ref_crop);
     if (i < N_PET_TYPES_NON_NAT || !veg_lib[veg_class].overstory)
       ra = aero_resist[i][0];
     else
       ra = aero_resist[i][1];
-    net_short = (1.0 - albedo) * shortwave;
     net_rad = net_short + net_longwave;
     pot_evap[i] = penman(tair, elevation, net_rad, vpd, ra, rc, rarc) * dt/24.0;
   }

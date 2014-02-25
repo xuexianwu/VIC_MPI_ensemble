@@ -193,7 +193,7 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
       global.dt = grads_file->dt;//1; //hours
       options.SNOW_STEP = grads_file->dt;//1;
       options.FULL_ENERGY=TRUE;      
-      options.FROZEN_SOIL=FALSE;//TRUE;
+      options.FROZEN_SOIL=TRUE;
       options.QUICK_FLUX=FALSE;
       options.QUICK_SOLVE=TRUE; 
       options.NOFLUX=TRUE;
@@ -229,7 +229,7 @@ global_param_struct get_global_param(filenames_struct *names,grads_file_struct *
       //strcpy(names->soil,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/Soil.txt");
       //strcpy(names->veglib,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/veglib.dat");
       //strcpy(names->veg,"/home/ice/nchaney/PROJECTS/BLUE_WATERS/TEST/DATA/LAI.txt");
-      options.SNOW_BAND = 10;
+      //options.SNOW_BAND = 10;
       options.VEGPARAM_LAI=TRUE;
       options.LAI_SRC = LAI_FROM_VEGPARAM;
       options.ROOT_ZONES = 2;//3;

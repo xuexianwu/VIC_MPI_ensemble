@@ -137,16 +137,16 @@ double arno_evap(layer_data_struct *layer_wet,
       ratio = 1.0 - (moist) / (max_moist);
       /*****if(ratio < SMALL && ratio > -SMALL) ratio = 0.;*****/
       if(ratio > 1.0) {
-	printf("\n  ERROR: SOIL RATIO GREATER THAN 1.0\n");
-	printf("moisture %f   max_moisture %f -> ratio = %f\n",
-	       moist,max_moist,ratio);
+	//printf("\n  ERROR: SOIL RATIO GREATER THAN 1.0\n");
+	//printf("moisture %f   max_moisture %f -> ratio = %f\n",
+	//       moist,max_moist,ratio);
 	return( ERROR );
       }
       else {
 	if(ratio < 0.0) {
-	  printf("\n  ERROR: SOIL RATIO LESS THAN 0.0\n");
-	  printf("moisture %f   max_moisture %f -> ratio = %e\n",
-	         moist,max_moist,ratio);
+	  //printf("\n  ERROR: SOIL RATIO LESS THAN 0.0\n");
+	  //printf("moisture %f   max_moisture %f -> ratio = %e\n",
+	  //       moist,max_moist,ratio);
 	  return( ERROR );
 	}
 	else

@@ -4,10 +4,10 @@
 #include <vicNl.h>
 #include <global.h>
 #include <vic_ensemble_io.h>
-#include <mpi.h>
 //#include "borg/borg.h"
 #include <time.h>
 #include <netcdf.h>
+#include <mpi.h>
 #include <math.h>
 
 int vicNl_cell();
@@ -198,13 +198,14 @@ int main(int argc, char **argv)
     }
     printf("%d %f %f\n",soil_con.gridcel,soil_con.lat,soil_con.lng);
     /** Read Elevation Band Data if Used **/
-    read_snowband(filep.snowband, &soil_con);
+    //read_snowband(filep.snowband, &soil_con);
     /** Read the vegetation parameters **/
     veg_con = read_vegparam(filep.vegparam,soil_con.gridcel,Nveg_type);
     calc_root_fractions(veg_con, &soil_con);
     /** Read in the forcing data for a single cell **/
     //extract_cell(&forcing_filep,&grads_file,soil_con.lat,soil_con.lng,forcing_cell);
     /** Get data for the cell **/
+    printf("Reading the forcing data\n");
     int forcing_ncid;
     forcing_ncid = open_netcdf_forcing_files(&netcdf_forcing_filename);
     extract_cell_netcdf(forcing_ncid,&grads_file,forcing_cell,soil_con.gridcel);
@@ -222,6 +223,7 @@ int main(int argc, char **argv)
     float lat,lon,tmp,linem; 
     int flag_cell = 1;
     linem = 0;
+    printf("Running the simulations\n");
 	
 	  // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Changes for hypercube version start here
@@ -293,6 +295,7 @@ int main(int argc, char **argv)
         nc_def_var_deflate(ncid,sm3_id,1,1,3);
         //Close the file
         status = nc_close(ncid);
+
 	//Define output variables
         int itime;
         float qsurf[global_param.nrecs];
@@ -364,7 +367,6 @@ int main(int argc, char **argv)
   		
   	}
 
-      
        // Convert from nc4 to nc3 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];
        sprintf(system_call_string,"/opt/cray/netcdf/4.1.3/cray/73/bin/nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
@@ -380,6 +382,7 @@ int main(int argc, char **argv)
   	free(hcube_params);
     free(hcube_obj);
 
+    printf("Finished the current cell\n");
     //Next cell
     icell = icell + np;
   
@@ -388,16 +391,16 @@ int main(int argc, char **argv)
   //fclose(fp_metrics);
   //Free used memory//
   free_vegcon(&veg_con);
-  free((char *)soil_con.AreaFract);
+  /*free((char *)soil_con.AreaFract);
   free((char *)soil_con.BandElev);
   free((char *)soil_con.Tfactor);
   free((char *)soil_con.Pfactor);
-  free((char *)soil_con.AboveTreeLine);
+  free((char *)soil_con.AboveTreeLine);*/
   free_atmos(global_param.nrecs, &atmos);
   free_dmy(&dmy);
   free_veglib(&veg_lib);
   //Close all the files
-  fclose(filep.snowband);
+  //fclose(filep.snowband);
   fclose(filep.soilparam);
   fclose(filep.vegparam);
   fclose(filep.veglib);
@@ -405,7 +408,7 @@ int main(int argc, char **argv)
   //nc_close(forcing_ncid);
   //close_forcing_files(&forcing_filep);
   /** Deallocate the global forcing structure **/
-  deallocate_forcing(&forcing_cell,&grads_file,ncells);
+  //deallocate_forcing(&forcing_cell,&grads_file,ncells);
   /** Free memory **/
   free(rrmse);
   /** Close up MPI section **/
