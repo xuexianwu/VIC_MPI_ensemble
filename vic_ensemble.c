@@ -333,15 +333,6 @@ int main(int argc, char **argv)
                  sm1[itime] = simulated_data[itime*7+4];
                  sm2[itime] = simulated_data[itime*7+5];
                  sm3[itime] = simulated_data[itime*7+6];
-                 //index[0] = i;
-		 //index[1] = itime;
-                 //status = nc_put_var1_float(ncid,prec_id,index,&prec[itime]);
-                 //status = nc_put_var1_float(ncid,evap_id,index,&evap[itime]);
-                 //status = nc_put_var1_float(ncid,sm1_id,index,&sm1[itime]);
-                 //status = nc_put_var1_float(ncid,sm2_id,index,&sm2[itime]);
-                 //status = nc_put_var1_float(ncid,sm3_id,index,&sm3[itime]);
-                 //status = nc_put_var1_float(ncid,qbase_id,index,&qbase[itime]);
-                 //status = nc_put_var1_float(ncid,qsurf_id,index,&qsurf[itime]);
                 }
  		count[0] = 1;
                 count[1] = global_param.nrecs;
@@ -396,10 +387,15 @@ int main(int argc, char **argv)
   
   //fclose(fp_metrics);
   //Free used memory//
+  free_vegcon(&veg_con);
+  free((char *)soil_con.AreaFract);
+  free((char *)soil_con.BandElev);
+  free((char *)soil_con.Tfactor);
+  free((char *)soil_con.Pfactor);
+  free((char *)soil_con.AboveTreeLine);
   free_atmos(global_param.nrecs, &atmos);
   free_dmy(&dmy);
   free_veglib(&veg_lib);
-  free_vegcon(&veg_con);
   //Close all the files
   fclose(filep.snowband);
   fclose(filep.soilparam);

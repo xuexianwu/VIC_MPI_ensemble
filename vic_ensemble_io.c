@@ -71,49 +71,51 @@ void extract_cell_netcdf(int ncid, grads_file_struct *grads_file, forcing_cell_s
 
  //Extract the data per variable
   /** Precipitation **/
-  printf("Reading precipitation\n");
+  //printf("Reading precipitation\n");
+  //printf("%d\n",ncid);
   nc_inq_varid(ncid,"prec",&varid);
+  //printf("%d %d\n",varid,icell);
   nc_get_vara_float(ncid,varid,start,count,&data_prec[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_prec,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].prec[t] = (double)(data[t]);}
 
   /** Pressure **/
-  printf("Reading pressure\n");
+  //printf("Reading pressure\n");
   nc_inq_varid(ncid,"pres",&varid);
   nc_get_vara_float(ncid,varid,start,count,&data_pres[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_pres,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].pres[t] = (double)(data[t]);}
 
   /** Wind Speed **/
-  printf("Reading wind speed\n");
+  //printf("Reading wind speed\n");
   nc_inq_varid(ncid,"wind",&varid);
   nc_get_vara_float(ncid,varid,start,count,&data_wind[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_wind,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].wind[t] = (double)(data[t]);}
 
   /** Air Temperature **/
-  printf("Reading air temperature\n");
+  //printf("Reading air temperature\n");
   nc_inq_varid(ncid,"tas",&varid);
   nc_get_vara_float(ncid,varid,start,count,&data_tair[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_tair,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].tair[t] = (double)(data[t]);}
 
   /** Downward Longwave Radiation **/
-  printf("Reading downward longwave radiation\n");
+  //printf("Reading downward longwave radiation\n");
   nc_inq_varid(ncid,"dlwrf",&varid);
   nc_get_vara_float(ncid,varid,start,count,&data_lwdown[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_lwdown,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].lwdown[t] = (double)(data[t]);}
 
   /** Downward Shortwave Radiation **/
-  printf("Reading downward shortwave radiation\n");
+  //printf("Reading downward shortwave radiation\n");
   nc_inq_varid(ncid,"dswrf",&varid);
   nc_get_vara_float(ncid,varid,start,count,&data_swdown[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_swdown,&data,1);
   for (int t = 0; t < grads_file->nt; t++){forcing_cell[0].swdown[t] = (double)(data[t]);}
 
   /** Specific Humidity **/
-  printf("Reading specific humidity\n");
+  //printf("Reading specific humidity\n");
   nc_inq_varid(ncid,"shum",&varid);
   nc_get_vara_float(ncid,varid,start,count,&data_shum[0]);
   downscale_data(grads_file->nt,grads_file->nt_netcdf,data_shum,&data,1);
@@ -281,7 +283,13 @@ void deallocate_forcing(forcing_cell_struct **forcing_cell, grads_file_struct *g
   int i;
   //Deallocate the memory used for storing the forcing data
   for (i = 0; i < ncells; i++) {
+    free((*forcing_cell)[i].prec);
     free((*forcing_cell)[i].tair);
+    free((*forcing_cell)[i].shum);
+    free((*forcing_cell)[i].wind);
+    free((*forcing_cell)[i].lwdown);
+    free((*forcing_cell)[i].swdown);
+    free((*forcing_cell)[i].pres);
   }
   free(*forcing_cell);
 }

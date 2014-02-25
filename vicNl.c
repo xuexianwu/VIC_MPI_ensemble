@@ -299,7 +299,6 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
       //close_files(&filep,out_data_files,&filenames); 
 
 #if !OUTPUT_FORCE
-/*
 #if QUICK_FS
       if(options.FROZEN_SOIL) {
 	for(i=0;i<MAX_LAYERS;i++) {
@@ -314,7 +313,6 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
 	}
       }
 #endif
-*/
  /* QUICK_FS */
       free_dist_prcp(&prcp,veg_con[0].vegetat_type_num);
       //free_vegcon(&veg_con);
