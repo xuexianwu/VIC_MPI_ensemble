@@ -308,6 +308,7 @@ int main(int argc, char **argv)
         size_t index[2],count[2],start[2];
 	
   	for(i = 0; i < num_hypercube; i++) {
+         printf("set %d\n",i);
   	  
       // Read in 9 parameters from sample file
       for(p = 0; p < 9; p++) {
