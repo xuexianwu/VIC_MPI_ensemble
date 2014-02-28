@@ -402,47 +402,47 @@ int main(int argc, char **argv)
            
                 //Place the variables
                 nc_inq_varid(ncid,"SNOW_DEPTH",&var_id);
-		nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+		nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SNOW_DEPTH[0]);
                 nc_inq_varid(ncid,"SOIL_MOIST1",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SOIL_MOIST1[0]);
                 nc_inq_varid(ncid,"SOIL_MOIST2",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SOIL_MOIST2[0]);
                 nc_inq_varid(ncid,"SOIL_MOIST3",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SOIL_MOIST3[0]);
                 nc_inq_varid(ncid,"SWE",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SWE[0]);
                 nc_inq_varid(ncid,"BASEFLOW",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.BASEFLOW[0]);
                 nc_inq_varid(ncid,"EVAP",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.EVAP[0]);
                 nc_inq_varid(ncid,"EVAP_BARE",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.EVAP_BARE[0]);
                 nc_inq_varid(ncid,"EVAP_CANOP",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.EVAP_CANOP[0]);
                 nc_inq_varid(ncid,"RUNOFF",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.RUNOFF[0]);
                 nc_inq_varid(ncid,"SNOW_MELT",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SNOW_MELT[0]);
                 nc_inq_varid(ncid,"TRANSP_VEG",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.TRANSP_VEG[0]);
                 nc_inq_varid(ncid,"SURF_TEMP",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SURF_TEMP[0]);
                 nc_inq_varid(ncid,"GRND_FLUX",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.GRND_FLUX[0]);
                 nc_inq_varid(ncid,"LATENT",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.LATENT[0]);
                 nc_inq_varid(ncid,"NET_LONG",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.NET_LONG[0]);
                 nc_inq_varid(ncid,"NET_SHORT",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.NET_SHORT[0]);
                 nc_inq_varid(ncid,"R_NET",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.R_NET[0]);
                 nc_inq_varid(ncid,"SENSIBLE",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SENSIBLE[0]);
                 nc_inq_varid(ncid,"AERO_COND",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.AERO_COND[0]);
                 nc_inq_varid(ncid,"SURF_COND",&var_id);
-                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SURF_COND[0]);
        
                 // Close the netcdf file
                 status = nc_close(ncid);
@@ -454,12 +454,13 @@ int main(int argc, char **argv)
 
        // Convert from nc4 to nc3 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];
-       sprintf(system_call_string,"/opt/cray/netcdf/4.1.3/cray/73/bin/nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
-       system(system_call_string);
+       //sprintf(system_call_string,"/opt/cray/netcdf/4.1.3/cray/73/bin/nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
+       //system(system_call_string);
        // Remove netcdf 4 file
-       sprintf(system_call_string,"rm %s",hcube_output_nc4_filename);
-       system(system_call_string);
-       sprintf(system_call_string, "chmod 770 %s", hcube_output_nc3_filename);
+       //sprintf(system_call_string,"rm %s",hcube_output_nc4_filename);
+       //system(system_call_string);
+       // Set permissions 
+       sprintf(system_call_string, "chmod 770 %s", hcube_output_nc4_filename);
        system(system_call_string);
 	
     fclose(hcube_fp);
