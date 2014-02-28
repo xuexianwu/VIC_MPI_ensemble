@@ -401,7 +401,6 @@ int main(int argc, char **argv)
                 start[1] = 0;
 
                 //Open file
-                printf("Writing the data\n");
                 nc_open(hcube_output_nc3_filename,NC_WRITE,&ncid);
            
                 //Place the variables
@@ -450,7 +449,6 @@ int main(int argc, char **argv)
        
                 // Close the netcdf file
                 status = nc_close(ncid);
-                printf("Done Writing the data\n");
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
