@@ -264,7 +264,7 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
         if (rec == 365 & ispin < 10){
          ispin = ispin + 1;
          //printf("Spinup year %d\n",ispin);
-         rec = 0; //Start over again;
+         rec = 1; //Start over again;
         }
 
         if ( rec == global_param.nrecs - 1 ) LASTREC = TRUE;
