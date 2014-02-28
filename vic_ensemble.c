@@ -10,7 +10,7 @@
 #include <mpi.h>
 #include <math.h>
 
-int vicNl_cell();
+int vicNl_cell(double *,soil_con_struct soil_con,veg_con_struct *,dmy_struct *,atmos_data_struct *,struct netcdf_output_struct);
 void resample();
 void Comparision_Statistics();
 void open_forcing_files();
@@ -28,7 +28,7 @@ float obs[12];
                         
 // Calibration wrapper function to be used with Borg
 // Receives parameters and writes objective values to an array
-void vic_calibration_wrapper(double* vars, double* objs,grads_file_struct *);
+void vic_calibration_wrapper(double* vars, double* objs,grads_file_struct *,struct netcdf_output_struct);
 
 // Make these variables global so the wrapper function can use them
 // (Will this wreck anything else?)
@@ -145,6 +145,15 @@ int main(int argc, char **argv)
   global_param.nrecs = grads_file.nt; //HARD CODED
   observed_data = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
   simulated_data = (double *) malloc(sizeof(double)*global_param.nrecs*nvars);
+
+  /** Allocate simulated data storage **/
+  struct netcdf_output_struct netcdf_output;
+  netcdf_output.qsurf = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.qbase = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.evap = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.sm1 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.sm2 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.sm3 = (float *) malloc(global_param.nrecs*sizeof(float));
 
   //Allocate memory for the atmospheric data
   alloc_atmos(global_param.nrecs, &atmos);
@@ -320,7 +329,7 @@ int main(int argc, char **argv)
   		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
   		
   		// Run the model with these parameters. record objective(s).
-  		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file);
+  		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file, netcdf_output);
   		
   		for(j = 0; j < 12; j++) {
   		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
@@ -348,17 +357,17 @@ int main(int argc, char **argv)
                 nc_inq_varid(ncid,"prec",&prec_id);
 		nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
                 nc_inq_varid(ncid,"evap",&evap_id);
-		status = nc_put_vara_float(ncid,evap_id,start,count,&evap[0]);
+		status = nc_put_vara_float(ncid,evap_id,start,count,&netcdf_output.evap[0]);
                 nc_inq_varid(ncid,"sm1",&sm1_id);
-		status = nc_put_vara_float(ncid,sm1_id,start,count,&sm1[0]);
+		status = nc_put_vara_float(ncid,sm1_id,start,count,&netcdf_output.sm1[0]);
                 nc_inq_varid(ncid,"sm2",&sm2_id);
-		status = nc_put_vara_float(ncid,sm2_id,start,count,&sm2[0]);
+		status = nc_put_vara_float(ncid,sm2_id,start,count,&netcdf_output.sm2[0]);
                 nc_inq_varid(ncid,"sm3",&sm3_id);
-		status = nc_put_vara_float(ncid,sm3_id,start,count,&sm3[0]);
+		status = nc_put_vara_float(ncid,sm3_id,start,count,&netcdf_output.sm3[0]);
                 nc_inq_varid(ncid,"qbase",&qbase_id);
-		status = nc_put_vara_float(ncid,qbase_id,start,count,&qbase[0]);
+		status = nc_put_vara_float(ncid,qbase_id,start,count,&netcdf_output.qbase[0]);
                 nc_inq_varid(ncid,"qsurf",&qsurf_id);
-		status = nc_put_vara_float(ncid,qsurf_id,start,count,&qsurf[0]);
+		status = nc_put_vara_float(ncid,qsurf_id,start,count,&netcdf_output.qsurf[0]);
        
                 // Close the netcdf file
                 status = nc_close(ncid);
@@ -421,7 +430,7 @@ int main(int argc, char **argv)
 
 // Calibration wrapper function to be used with Borg
 // Receives parameters and writes objective values to an array
-void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grads_file) {
+void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grads_file, struct netcdf_output_struct netcdf_output) {
     
   float sim[12],count[12],qbase,qsurf;
   time_t t;
@@ -472,7 +481,7 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
   }
     
   // Run the model
-  vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos);
+  vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos, netcdf_output);
 
   // Find the monthly averages of simulated runoff (baseflow + surface runoff)
   int tcount = 0;

@@ -50,3 +50,12 @@ typedef struct{
   double *lwdown;
   double *swdown;
 } forcing_cell_struct;
+
+struct netcdf_output_struct{
+  float *qsurf;
+  float *qbase;
+  float *evap;
+  float *sm1;
+  float *sm2;
+  float *sm3;
+};

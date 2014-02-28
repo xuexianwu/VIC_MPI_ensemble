@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vicNl.h>
+#include <vic_ensemble_io.h>
 //#include <global.h>
 
 static char vcid[] = "$Id: vicNl.c,v 5.14.2.20 2012/02/05 00:15:44 vicadmin Exp $";
 
 int vicNl_cell(double *output_array,soil_con_struct soil_con, 
-               veg_con_struct *veg_con,dmy_struct *dmy,atmos_data_struct *atmos)//,global_param_struct global_param)
+               veg_con_struct *veg_con,dmy_struct *dmy,atmos_data_struct *atmos,struct netcdf_output_struct netcdf_output)//,global_param_struct global_param)
 /**********************************************************************
 	vicNl.c		Dag Lohmann		January 1996
 
@@ -241,6 +242,7 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
 		  &lake_con, dmy, &global_param, &filep, out_data_files,
 		  out_data, &save_data, -global_param.nrecs, cellnum,
                   NEWCELL, LASTREC, init_STILL_STORM, init_DRY_TIME);
+
       /** Pass initialized values to output array**/
       rec = 0;
       output_array[0] = out_data[OUT_EVAP].data[0];//Evaporation [mm]
@@ -264,7 +266,15 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
 		  &lake_con, dmy, &global_param, &filep,
 		  out_data_files, out_data, &save_data, rec, cellnum,
                   NEWCELL, LASTREC, init_STILL_STORM, init_DRY_TIME);
+
         /** Place the data that we desire into the output array**/
+        netcdf_output.qsurf[rec] = out_data[OUT_RUNOFF].data[0];
+        netcdf_output.evap[rec] = out_data[OUT_EVAP].data[0];
+        netcdf_output.qbase[rec] = out_data[OUT_BASEFLOW].data[0];
+        netcdf_output.sm1[rec] = out_data[OUT_SOIL_MOIST].data[0];
+        netcdf_output.sm2[rec] = out_data[OUT_SOIL_MOIST].data[1];
+        netcdf_output.sm3[rec] = out_data[OUT_SOIL_MOIST].data[2];
+
         for (m=0;m<7;m++){
           out_pos = (rec)*7 + m;
           if(m==0)output_array[out_pos] = out_data[OUT_EVAP].data[0];//Evaporation [mm]
