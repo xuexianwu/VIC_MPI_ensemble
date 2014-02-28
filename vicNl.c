@@ -261,10 +261,10 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
       for ( rec = startrec ; rec < global_param.nrecs; rec++ ) {
 
         //Spinup the model for 10 years
-        if (rec == 365 & ispin < 10){
+        if (rec == 10*365 & ispin < 1){
          ispin = ispin + 1;
          //printf("Spinup year %d\n",ispin);
-         rec = 1; //Start over again;
+         rec = 0; //Start over again;
         }
 
         if ( rec == global_param.nrecs - 1 ) LASTREC = TRUE;
