@@ -256,8 +256,16 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
       /******************************************
 	Run Model in Grid Cell for all Time Steps
 	******************************************/
+      int ispin = 0;
 
       for ( rec = startrec ; rec < global_param.nrecs; rec++ ) {
+
+        //Spinup the model for 10 years
+        if (rec == 365 & ispin < 10){
+         ispin = ispin + 1;
+         //printf("Spinup year %d\n",ispin);
+         rec = 0; //Start over again;
+        }
 
         if ( rec == global_param.nrecs - 1 ) LASTREC = TRUE;
         else LASTREC = FALSE;

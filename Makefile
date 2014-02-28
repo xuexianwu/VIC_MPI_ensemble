@@ -55,11 +55,13 @@ CC = cc
 
 # Uncomment for normal optimized code flags (fastest run option)
 CFLAGS  = -I. -O3 #-Wall -Wno-unused
+#LIBRARY = -L/u/sciteam/nchaney/local/lib -lnetcdf
 #LIBRARY = -L/opt/cray/netcdf/4.3.0/CRAY/81/lib -lnetcdf
 #LIBRARY = -L./borg -lm -lborg
 #LIBRARY = -lnetcdf
 
 # Uncomment to include debugging information
+#CFLAGS = -I/u/sciteam/nchaney/local/include -O0
 #CFLAGS  = -I. -g #-Wall -Wno-unused
 #LIBRARY = -lm
 

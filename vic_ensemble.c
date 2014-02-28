@@ -289,7 +289,7 @@ int main(int argc, char **argv)
         // Initialize netcdf file
         int status;
         int ncid;
-        status = nc_create(hcube_output_nc4_filename,NC_CLOBBER|NC_NETCDF4, &ncid);
+        status = nc_create(hcube_output_nc3_filename,NC_CLOBBER, &ncid);
         //Define the netcdf dimensions
         int timeid;
         int ens_id;
@@ -347,6 +347,9 @@ int main(int argc, char **argv)
         status = nc_def_var(ncid,"SURF_COND",NC_FLOAT,2,var_dimids,&var_id);
         nc_def_var_deflate(ncid,var_id,1,1,3);
 
+        //End defining the metdata
+        nc_enddef(ncid);
+
         //Close the file
         status = nc_close(ncid);
 
@@ -398,7 +401,8 @@ int main(int argc, char **argv)
                 start[1] = 0;
 
                 //Open file
-                nc_open(hcube_output_nc4_filename,NC_WRITE,&ncid);
+                printf("Writing the data\n");
+                nc_open(hcube_output_nc3_filename,NC_WRITE,&ncid);
            
                 //Place the variables
                 nc_inq_varid(ncid,"SNOW_DEPTH",&var_id);
@@ -446,27 +450,32 @@ int main(int argc, char **argv)
        
                 // Close the netcdf file
                 status = nc_close(ncid);
+                printf("Done Writing the data\n");
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
   		
   	}
 
-       // Convert from nc4 to nc3 (This is embarassing... but it works!)
+       //Close the netcdf file
+       //status = nc_close(ncid);
+       //printf("Done Writing the data\n");
+
+       // Convert from nc3 to nc4 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];
-       //sprintf(system_call_string,"/opt/cray/netcdf/4.1.3/cray/73/bin/nccopy -k 1 %s %s", hcube_output_nc4_filename,hcube_output_nc3_filename);
-       //system(system_call_string);
-       // Remove netcdf 4 file
-       //sprintf(system_call_string,"rm %s",hcube_output_nc4_filename);
-       //system(system_call_string);
+       sprintf(system_call_string,"/opt/cray/netcdf/4.1.3/cray/73/bin/nccopy -k 3 -d 4 %s %s", hcube_output_nc3_filename,hcube_output_nc4_filename);
+       system(system_call_string);
+       // Remove netcdf 3 file
+       sprintf(system_call_string,"rm %s",hcube_output_nc3_filename);
+       system(system_call_string);
        // Set permissions 
        sprintf(system_call_string, "chmod 770 %s", hcube_output_nc4_filename);
        system(system_call_string);
 	
     fclose(hcube_fp);
-  	fclose(hcube_output_fp);
-  	free(hcube_params);
-    free(hcube_obj);
+    fclose(hcube_output_fp);
+    //free(hcube_params);
+    //free(hcube_obj);
 
     printf("Finished the current cell\n");
     //Next cell
