@@ -148,12 +148,27 @@ int main(int argc, char **argv)
 
   /** Allocate simulated data storage **/
   struct netcdf_output_struct netcdf_output;
-  netcdf_output.qsurf = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.qbase = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.evap = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.sm1 = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.sm2 = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.sm3 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SNOW_DEPTH = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SOIL_MOIST1 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SOIL_MOIST2 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SOIL_MOIST3 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SWE = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.BASEFLOW = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.EVAP = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.EVAP_BARE = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.EVAP_CANOP = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.RUNOFF = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SNOW_MELT = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.TRANSP_VEG = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SURF_TEMP = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.GRND_FLUX = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.LATENT = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.NET_LONG = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.NET_SHORT = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.R_NET = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SENSIBLE = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.AERO_COND = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SURF_COND = (float *) malloc(global_param.nrecs*sizeof(float));
 
   //Allocate memory for the atmospheric data
   alloc_atmos(global_param.nrecs, &atmos);
@@ -281,27 +296,57 @@ int main(int argc, char **argv)
         status = nc_def_dim(ncid,"time",global_param.nrecs,&timeid);
         status = nc_def_dim(ncid,"ensemble",num_hypercube,&ens_id);
         //Define the variables
-        int prec_id,qsurf_id,qbase_id,evap_id,sm1_id,sm2_id,sm3_id;
+        int prec_id,qsurf_id,qbase_id,evap_id,sm1_id,sm2_id,sm3_id,var_id;
         int var_dimids[2];
         int prec_dimids[1];
         var_dimids[0] = ens_id;
         var_dimids[1] = timeid;
  	prec_dimids[0] = timeid;
-        status = nc_def_var(ncid,"prec",NC_FLOAT,2,var_dimids,&prec_id);
-        status = nc_def_var(ncid,"qbase",NC_FLOAT,2,var_dimids,&qbase_id);
-        status = nc_def_var(ncid,"qsurf",NC_FLOAT,2,var_dimids,&qsurf_id);
-        status = nc_def_var(ncid,"evap",NC_FLOAT,2,var_dimids,&evap_id);
-        status = nc_def_var(ncid,"sm1",NC_FLOAT,2,var_dimids,&sm1_id);
-        status = nc_def_var(ncid,"sm2",NC_FLOAT,2,var_dimids,&sm2_id);
-        status = nc_def_var(ncid,"sm3",NC_FLOAT,2,var_dimids,&sm3_id);
-        //Set up compression
-        nc_def_var_deflate(ncid,evap_id,1,1,3);
-        nc_def_var_deflate(ncid,qbase_id,1,1,3);
-        nc_def_var_deflate(ncid,qsurf_id,1,1,3);
-        nc_def_var_deflate(ncid,prec_id,1,1,3);
-        nc_def_var_deflate(ncid,sm1_id,1,1,3);
-        nc_def_var_deflate(ncid,sm2_id,1,1,3);
-        nc_def_var_deflate(ncid,sm3_id,1,1,3);
+
+        //Declare the variables and set up the compression
+        status = nc_def_var(ncid,"SNOW_DEPTH",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SOIL_MOIST1",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SOIL_MOIST2",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SOIL_MOIST3",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SWE",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"BASEFLOW",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"EVAP",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"EVAP_BARE",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"EVAP_CANOP",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"RUNOFF",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SNOW_MELT",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"TRANSP_VEG",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SURF_TEMP",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"GRND_FLUX",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"LATENT",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"NET_LONG",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"NET_SHORT",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"R_NET",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SENSIBLE",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"AERO_COND",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SURF_COND",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+
         //Close the file
         status = nc_close(ncid);
 
@@ -354,20 +399,50 @@ int main(int argc, char **argv)
 
                 //Open file
                 nc_open(hcube_output_nc4_filename,NC_WRITE,&ncid);
-                nc_inq_varid(ncid,"prec",&prec_id);
+           
+                //Place the variables
+                nc_inq_varid(ncid,"SNOW_DEPTH",&var_id);
 		nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
-                nc_inq_varid(ncid,"evap",&evap_id);
-		status = nc_put_vara_float(ncid,evap_id,start,count,&netcdf_output.evap[0]);
-                nc_inq_varid(ncid,"sm1",&sm1_id);
-		status = nc_put_vara_float(ncid,sm1_id,start,count,&netcdf_output.sm1[0]);
-                nc_inq_varid(ncid,"sm2",&sm2_id);
-		status = nc_put_vara_float(ncid,sm2_id,start,count,&netcdf_output.sm2[0]);
-                nc_inq_varid(ncid,"sm3",&sm3_id);
-		status = nc_put_vara_float(ncid,sm3_id,start,count,&netcdf_output.sm3[0]);
-                nc_inq_varid(ncid,"qbase",&qbase_id);
-		status = nc_put_vara_float(ncid,qbase_id,start,count,&netcdf_output.qbase[0]);
-                nc_inq_varid(ncid,"qsurf",&qsurf_id);
-		status = nc_put_vara_float(ncid,qsurf_id,start,count,&netcdf_output.qsurf[0]);
+                nc_inq_varid(ncid,"SOIL_MOIST1",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SOIL_MOIST2",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SOIL_MOIST3",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SWE",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"BASEFLOW",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"EVAP",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"EVAP_BARE",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"EVAP_CANOP",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"RUNOFF",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SNOW_MELT",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"TRANSP_VEG",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SURF_TEMP",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"GRND_FLUX",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"LATENT",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"NET_LONG",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"NET_SHORT",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"R_NET",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SENSIBLE",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"AERO_COND",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
+                nc_inq_varid(ncid,"SURF_COND",&var_id);
+                nc_put_vara_float(ncid,prec_id,start,count,&prec[0]);
        
                 // Close the netcdf file
                 status = nc_close(ncid);

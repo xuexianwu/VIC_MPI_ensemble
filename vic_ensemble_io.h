@@ -52,10 +52,25 @@ typedef struct{
 } forcing_cell_struct;
 
 struct netcdf_output_struct{
-  float *qsurf;
-  float *qbase;
-  float *evap;
-  float *sm1;
-  float *sm2;
-  float *sm3;
+  float *SNOW_DEPTH;
+  float *SOIL_MOIST1;
+  float *SOIL_MOIST2;
+  float *SOIL_MOIST3;
+  float *SWE;
+  float *BASEFLOW;
+  float *EVAP;
+  float *EVAP_BARE;
+  float *EVAP_CANOP;
+  float *RUNOFF;
+  float *SNOW_MELT;
+  float *TRANSP_VEG;
+  float *SURF_TEMP;
+  float *GRND_FLUX;
+  float *LATENT;
+  float *NET_LONG;
+  float *NET_SHORT;
+  float *R_NET;
+  float *SENSIBLE;
+  float *AERO_COND;
+  float *SURF_COND;
 };

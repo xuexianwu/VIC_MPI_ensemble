@@ -268,12 +268,27 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
                   NEWCELL, LASTREC, init_STILL_STORM, init_DRY_TIME);
 
         /** Place the data that we desire into the output array**/
-        netcdf_output.qsurf[rec] = out_data[OUT_RUNOFF].data[0];
-        netcdf_output.evap[rec] = out_data[OUT_EVAP].data[0];
-        netcdf_output.qbase[rec] = out_data[OUT_BASEFLOW].data[0];
-        netcdf_output.sm1[rec] = out_data[OUT_SOIL_MOIST].data[0];
-        netcdf_output.sm2[rec] = out_data[OUT_SOIL_MOIST].data[1];
-        netcdf_output.sm3[rec] = out_data[OUT_SOIL_MOIST].data[2];
+        netcdf_output.SNOW_DEPTH[rec] = out_data[OUT_SNOW_DEPTH].data[0];
+        netcdf_output.SWE[rec] = out_data[OUT_SWE].data[0];
+        netcdf_output.EVAP_BARE[rec] = out_data[OUT_EVAP_BARE].data[0];
+        netcdf_output.EVAP_CANOP[rec] = out_data[OUT_EVAP_CANOP].data[0];
+        netcdf_output.SNOW_MELT[rec] = out_data[OUT_SNOW_MELT].data[0];
+        netcdf_output.TRANSP_VEG[rec] = out_data[OUT_TRANSP_VEG].data[0];
+        netcdf_output.SURF_TEMP[rec] = out_data[OUT_SURF_TEMP].data[0];
+        netcdf_output.GRND_FLUX[rec] = out_data[OUT_GRND_FLUX].data[0];
+        netcdf_output.LATENT[rec] = out_data[OUT_LATENT].data[0];
+        netcdf_output.NET_LONG[rec] = out_data[OUT_NET_LONG].data[0];
+        netcdf_output.NET_SHORT[rec] = out_data[OUT_NET_SHORT].data[0];
+        netcdf_output.R_NET[rec] = out_data[OUT_R_NET].data[0];
+        netcdf_output.SENSIBLE[rec] = out_data[OUT_SENSIBLE].data[0];
+        netcdf_output.AERO_COND[rec] = out_data[OUT_AERO_COND].data[0];
+        netcdf_output.SURF_COND[rec] = out_data[OUT_SURF_COND].data[0];
+        netcdf_output.EVAP[rec] = out_data[OUT_EVAP].data[0];
+        netcdf_output.RUNOFF[rec] = out_data[OUT_RUNOFF].data[0];
+        netcdf_output.BASEFLOW[rec] = out_data[OUT_BASEFLOW].data[0];
+        netcdf_output.SOIL_MOIST1[rec] = out_data[OUT_SOIL_MOIST].data[0];
+        netcdf_output.SOIL_MOIST2[rec] = out_data[OUT_SOIL_MOIST].data[1];
+        netcdf_output.SOIL_MOIST3[rec] = out_data[OUT_SOIL_MOIST].data[2];
 
         for (m=0;m<7;m++){
           out_pos = (rec)*7 + m;
