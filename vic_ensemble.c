@@ -382,10 +382,10 @@ int main(int argc, char **argv)
   		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
   		
   		// Run the model with these parameters. record objective(s).
-      clock_t start = clock(), diff;
+      clock_t runtime_start = clock(), runtime_diff;
   		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file, netcdf_output);
-      diff = clock() - start;
-      int msec = diff * 1000 / CLOCKS_PER_SEC;
+      runtime_diff = clock() - runtime_start;
+      int msec = runtime_diff * 1000 / CLOCKS_PER_SEC;
       runtime_seconds = msec/1000; // Measures CPU time ONLY
   		
   		for(j = 0; j < 12; j++) {
