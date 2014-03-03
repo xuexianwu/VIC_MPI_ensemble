@@ -270,14 +270,18 @@ int main(int argc, char **argv)
   	// Open the output file for writing objective(s) after each evaluation
   	// The filename will contain 6 digits after the decimals by default
   	FILE *hcube_output_fp;
+    FILE *timing_output_fp;
   	char hcube_output_filename[MAXSTRING];
+    char timing_output_filename[MAXSTRING];
   	char hcube_output_nc4_filename[MAXSTRING];
   	char hcube_output_nc3_filename[MAXSTRING];
-  	sprintf(hcube_output_filename, "%s/file_%d/txt/hcube_lat_%f_long_%f.txt", metrics_root, filenum, soil_con.lat, soil_con.lng);
+    sprintf(hcube_output_filename, "%s/file_%d/txt/hcube_lat_%f_long_%f.txt", metrics_root, filenum, soil_con.lat, soil_con.lng);
+  	sprintf(timing_output_filename, "%s/file_%d/timing/timing_lat_%f_long_%f.txt", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	sprintf(hcube_output_nc4_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc4", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	sprintf(hcube_output_nc3_filename, "%s/file_%d/nc/hcube_lat_%f_long_%f.nc3", metrics_root, filenum, soil_con.lat, soil_con.lng);
   	hcube_output_fp = fopen(hcube_output_filename, "w");
-  	
+  	timing_output_fp = fopen(timing_output_filename, "w");
+
   	double *hcube_obj = (double *) malloc(sizeof(double)*12); // 1 objective (12 to print monthly sim values)
   	
   	// test: print the observations to the output file first row
@@ -363,6 +367,7 @@ int main(int argc, char **argv)
         float sm2[global_param.nrecs];
         float sm3[global_param.nrecs];
         size_t index[2],count[2],start[2];
+        int runtime_seconds = 0;
 	
   	for(i = 0; i < num_hypercube; i++) {
          printf("set %d\n",i);
@@ -377,13 +382,19 @@ int main(int argc, char **argv)
   		// printf("Cell %d, Sim %d: %f %f %f %f\n", icell, i, hcube_params[0], hcube_params[1], hcube_params[2], hcube_params[3]);
   		
   		// Run the model with these parameters. record objective(s).
+      clock_t start = clock(), diff;
   		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file, netcdf_output);
+      diff = clock() - start;
+      int msec = diff * 1000 / CLOCKS_PER_SEC;
+      runtime_seconds = msec/1000; // Measures CPU time ONLY
   		
   		for(j = 0; j < 12; j++) {
   		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
   		  if(j < 11) fprintf(hcube_output_fp, " ");
   		  else fprintf(hcube_output_fp, "\n");
   		}
+
+      fprintf(timing_output_fp, "%f %f %d", soil_con.lat, soil_con.lng, runtime_seconds);
 
 		//Place output in netcdf file
                 for (itime = 0; itime < global_param.nrecs; itime++){
@@ -452,6 +463,7 @@ int main(int argc, char **argv)
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
+      fflush(timing_output_fp);
   		
   	}
 
@@ -472,6 +484,7 @@ int main(int argc, char **argv)
 	
     fclose(hcube_fp);
     fclose(hcube_output_fp);
+    fclose(timing_output_fp);
     //free(hcube_params);
     //free(hcube_obj);
 
