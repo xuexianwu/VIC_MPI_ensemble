@@ -394,7 +394,7 @@ int main(int argc, char **argv)
   		  else fprintf(hcube_output_fp, "\n");
   		}
 
-      fprintf(timing_output_fp, "%f %f %d", soil_con.lat, soil_con.lng, runtime_seconds);
+      fprintf(timing_output_fp, "%f %f %d\n", soil_con.lat, soil_con.lng, runtime_seconds);
 
 		//Place output in netcdf file
                 for (itime = 0; itime < global_param.nrecs; itime++){
