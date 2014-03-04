@@ -367,7 +367,7 @@ int main(int argc, char **argv)
         float sm2[global_param.nrecs];
         float sm3[global_param.nrecs];
         size_t index[2],count[2],start[2];
-        int runtime_seconds = 0;
+        double runtime_seconds = 0.0;
 	
   	for(i = 0; i < num_hypercube; i++) {
          printf("set %d\n",i);
@@ -385,8 +385,9 @@ int main(int argc, char **argv)
       clock_t runtime_start = clock(), runtime_diff;
   		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file, netcdf_output);
       runtime_diff = clock() - runtime_start;
-      int msec = runtime_diff * 1000 / CLOCKS_PER_SEC;
-      runtime_seconds = msec/1000; // Measures CPU time ONLY
+      double msec = runtime_diff * 1000 / CLOCKS_PER_SEC;
+      // Average value of runtime_seconds - keep a running sum
+      runtime_seconds = runtime_seconds + (msec/1000)/num_hypercube; // Measures CPU time ONLY
   		
   		for(j = 0; j < 12; j++) {
   		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
@@ -557,7 +558,7 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
 
   // Set parameter values in soil struct
   // Note: to run default parameters, comment these out.
-  /*soil_con.b_infilt = pow(10,vars[0]);
+  soil_con.b_infilt = pow(10,vars[0]);
   soil_con.Ds = pow(10,vars[1]);
   soil_con.Dsmax = pow(10,vars[2]);
   soil_con.Ws = vars[3];
@@ -574,7 +575,7 @@ void vic_calibration_wrapper(double* vars, double* objs, grads_file_struct *grad
     soil_con.expt[i] = vars[7];
     //ksat - between 100 and 10,000 [mm/day]
     soil_con.Ksat[i] = pow(10,vars[8]);
-  }*/
+  }
     
   // Run the model
   vicNl_cell(simulated_data, soil_con, veg_con, dmy, atmos, netcdf_output);
