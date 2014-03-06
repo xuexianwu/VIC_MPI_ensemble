@@ -385,9 +385,9 @@ int main(int argc, char **argv)
       clock_t runtime_start = clock(), runtime_diff;
   		vic_calibration_wrapper(hcube_params, hcube_obj, &grads_file, netcdf_output);
       runtime_diff = clock() - runtime_start;
-      double msec = runtime_diff * 1000 / CLOCKS_PER_SEC;
+      int msec = runtime_diff * 1000 / CLOCKS_PER_SEC;
       // Average value of runtime_seconds - keep a running sum
-      runtime_seconds = runtime_seconds + (msec/1000)/num_hypercube; // Measures CPU time ONLY
+      runtime_seconds = runtime_seconds + (double)(msec/1000)/num_hypercube; // Measures CPU time ONLY
   		
   		for(j = 0; j < 12; j++) {
   		  fprintf(hcube_output_fp, "%f", hcube_obj[j]);
