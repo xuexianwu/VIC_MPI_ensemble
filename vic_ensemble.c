@@ -466,7 +466,7 @@ int main(int argc, char **argv)
   		
   	}
 
-      fprintf(timing_output_fp, "%f %f %d\n", soil_con.lat, soil_con.lng, runtime_seconds);
+      fprintf(timing_output_fp, "%f %f %f\n", soil_con.lat, soil_con.lng, runtime_seconds);
 
        //Close the netcdf file
        //status = nc_close(ncid);
