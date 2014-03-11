@@ -42,6 +42,14 @@ forcing_cell_struct *forcing_cell;
 float *rmin;
 int Nveg_type;
 
+// NetCDF Error Handling function
+void check_nc_error(int status) {
+if (status != NC_NOERR) {
+    fprintf(stderr, "%s\n", nc_strerror(status));
+    exit(-1);
+  }
+}
+
 /** Main Program **/
 
 int main(int argc, char **argv)
@@ -49,7 +57,7 @@ int main(int argc, char **argv)
   /* Initialize MPI */
   MPI_Init(&argc, &argv);
   int np,myid;
-  MPI_Status status;
+  //MPI_Status status;
   MPI_Comm_size(MPI_COMM_WORLD,&np);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
@@ -308,7 +316,9 @@ int main(int argc, char **argv)
         int prec_dimids[1];
         var_dimids[0] = ens_id;
         var_dimids[1] = timeid;
- 	prec_dimids[0] = timeid;
+ 	      prec_dimids[0] = timeid;
+
+        check_nc_error(status);
 
         //Declare the variables and set up the compression
         status = nc_def_var(ncid,"SNOW_DEPTH",NC_FLOAT,2,var_dimids,&var_id);
@@ -365,6 +375,8 @@ int main(int argc, char **argv)
 
         //Close the file
         status = nc_close(ncid);
+
+        check_nc_error(status);
 
 	//Define output variables
         int itime;
@@ -474,6 +486,7 @@ int main(int argc, char **argv)
        
                 // Close the netcdf file
                 status = nc_close(ncid);
+                check_nc_error(status);
   		
   		// buffer flush after each evaluation
   		fflush(hcube_output_fp);
