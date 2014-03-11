@@ -167,8 +167,11 @@ int main(int argc, char **argv)
   netcdf_output.NET_SHORT = (float *) malloc(global_param.nrecs*sizeof(float));
   netcdf_output.R_NET = (float *) malloc(global_param.nrecs*sizeof(float));
   netcdf_output.SENSIBLE = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.AERO_COND = (float *) malloc(global_param.nrecs*sizeof(float));
-  netcdf_output.SURF_COND = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SOIL_TEMP1 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SOIL_TEMP2 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SOIL_TEMP3 = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.SNOW_COVER = (float *) malloc(global_param.nrecs*sizeof(float));
+  netcdf_output.PRECIPITATION = (float *) malloc(global_param.nrecs*sizeof(float));
 
   //Allocate memory for the atmospheric data
   alloc_atmos(global_param.nrecs, &atmos);
@@ -346,9 +349,15 @@ int main(int argc, char **argv)
         nc_def_var_deflate(ncid,var_id,1,1,3);
         status = nc_def_var(ncid,"SENSIBLE",NC_FLOAT,2,var_dimids,&var_id);
         nc_def_var_deflate(ncid,var_id,1,1,3);
-        status = nc_def_var(ncid,"AERO_COND",NC_FLOAT,2,var_dimids,&var_id);
+        status = nc_def_var(ncid,"SOIL_TEMP1",NC_FLOAT,2,var_dimids,&var_id);
         nc_def_var_deflate(ncid,var_id,1,1,3);
-        status = nc_def_var(ncid,"SURF_COND",NC_FLOAT,2,var_dimids,&var_id);
+        status = nc_def_var(ncid,"SOIL_TEMP2",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SOIL_TEMP3",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"SNOW_COVER",NC_FLOAT,2,var_dimids,&var_id);
+        nc_def_var_deflate(ncid,var_id,1,1,3);
+        status = nc_def_var(ncid,"PRECIPITATION",NC_FLOAT,2,var_dimids,&var_id);
         nc_def_var_deflate(ncid,var_id,1,1,3);
 
         //End defining the metdata
@@ -452,10 +461,16 @@ int main(int argc, char **argv)
                 nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.R_NET[0]);
                 nc_inq_varid(ncid,"SENSIBLE",&var_id);
                 nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SENSIBLE[0]);
-                nc_inq_varid(ncid,"AERO_COND",&var_id);
-                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.AERO_COND[0]);
-                nc_inq_varid(ncid,"SURF_COND",&var_id);
-                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SURF_COND[0]);
+                nc_inq_varid(ncid,"SOIL_TEMP1",&var_id);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SOIL_TEMP1[0]);
+                nc_inq_varid(ncid,"SOIL_TEMP2",&var_id);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SOIL_TEMP2[0]);
+                nc_inq_varid(ncid,"SOIL_TEMP3",&var_id);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SOIL_TEMP3[0]);
+                nc_inq_varid(ncid,"SNOW_COVER",&var_id);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.SNOW_COVER[0]);
+                nc_inq_varid(ncid,"PRECIPITATION",&var_id);
+                nc_put_vara_float(ncid,var_id,start,count,&netcdf_output.PRECIPITATION[0]);
        
                 // Close the netcdf file
                 status = nc_close(ncid);
@@ -470,7 +485,7 @@ int main(int argc, char **argv)
 
        //Close the netcdf file
        //status = nc_close(ncid);
-       //printf("Done Writing the data\n");
+       printf("Done Writing the data\n");
 
        // Convert from nc3 to nc4 (This is embarassing... but it works!)
        char system_call_string[MAXSTRING];

@@ -289,14 +289,19 @@ int vicNl_cell(double *output_array,soil_con_struct soil_con,
         netcdf_output.NET_SHORT[rec] = out_data[OUT_NET_SHORT].data[0];
         netcdf_output.R_NET[rec] = out_data[OUT_R_NET].data[0];
         netcdf_output.SENSIBLE[rec] = out_data[OUT_SENSIBLE].data[0];
-        netcdf_output.AERO_COND[rec] = out_data[OUT_AERO_COND].data[0];
-        netcdf_output.SURF_COND[rec] = out_data[OUT_SURF_COND].data[0];
+        //netcdf_output.AERO_COND[rec] = out_data[OUT_AERO_COND].data[0];
+        //netcdf_output.SURF_COND[rec] = out_data[OUT_SURF_COND].data[0];
         netcdf_output.EVAP[rec] = out_data[OUT_EVAP].data[0];
         netcdf_output.RUNOFF[rec] = out_data[OUT_RUNOFF].data[0];
         netcdf_output.BASEFLOW[rec] = out_data[OUT_BASEFLOW].data[0];
         netcdf_output.SOIL_MOIST1[rec] = out_data[OUT_SOIL_MOIST].data[0];
         netcdf_output.SOIL_MOIST2[rec] = out_data[OUT_SOIL_MOIST].data[1];
         netcdf_output.SOIL_MOIST3[rec] = out_data[OUT_SOIL_MOIST].data[2];
+        netcdf_output.SOIL_TEMP1[rec] = out_data[OUT_SOIL_TEMP].data[0];
+        netcdf_output.SOIL_TEMP2[rec] = out_data[OUT_SOIL_TEMP].data[1];
+        netcdf_output.SOIL_TEMP3[rec] = out_data[OUT_SOIL_TEMP].data[2];
+        netcdf_output.SNOW_COVER[rec] = out_data[OUT_SNOW_COVER].data[0];
+        netcdf_output.PRECIPITATION[rec] = out_data[OUT_PREC].data[0];
 
         for (m=0;m<7;m++){
           out_pos = (rec)*7 + m;

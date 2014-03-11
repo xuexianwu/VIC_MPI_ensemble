@@ -52,6 +52,7 @@ typedef struct{
 } forcing_cell_struct;
 
 struct netcdf_output_struct{
+  float *PRECIPITATION;
   float *SNOW_DEPTH;
   float *SOIL_MOIST1;
   float *SOIL_MOIST2;
@@ -71,6 +72,8 @@ struct netcdf_output_struct{
   float *NET_SHORT;
   float *R_NET;
   float *SENSIBLE;
-  float *AERO_COND;
-  float *SURF_COND;
+  float *SOIL_TEMP1;
+  float *SOIL_TEMP2;
+  float *SOIL_TEMP3;
+  float *SNOW_COVER;
 };
